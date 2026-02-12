@@ -4,6 +4,7 @@ namespace AI
 {
     public class AIAgent : MonoBehaviour
     {
+        [Header("Agent Settings")]
         public float maxSpeed;
         public bool lockY = true;
         public bool debug;
@@ -11,8 +12,14 @@ namespace AI
         public enum EBehaviorType { Kinematic, Steering }
         public EBehaviorType behaviorType;
 
+        [Header("Collsion Avoidance Settings")]
+        public float raylength = 5f;
+        public float rayAngle = 15f;
+        public LayerMask obstacleLayerMask;
+
         // private Animator animator;
 
+        [Header("Target Tracking")]
         public Transform trackedTarget;
         public Transform flockTarget;
 
@@ -78,7 +85,8 @@ namespace AI
             HandleTargetTracking();
 
             HandleMovement();
-            HandleStateChange();
+
+            HandleCollisionAvoidance();
 
             FixYPosition();
 
@@ -95,6 +103,10 @@ namespace AI
             {
                 if (flockTarget != null)
                     TrackTarget(flockTarget);
+            }
+            else if (currentState == AIState.SeekCover || currentState == AIState.InCover)
+            {
+                // Stay on tracked target
             }
             else
             {
@@ -185,22 +197,99 @@ namespace AI
         #endregion
 
         #region AI State
+        public enum AIState
+        {
+            Moving,
+            SeekCover,
+            InCover,
+        }
         public void SetState(AIState newState)
         {
             currentState = newState;
         }
 
-        private void HandleStateChange()
+        public void SeekCover(Transform coverTransform)
         {
-            // TODO: handle any necessary logic when changing states, such as clearing targets, resetting timers, etc.
+            TrackTarget(coverTransform);
+            SetState(AIState.SeekCover);
+        }
+        #endregion
+
+        #region Collision Avoidance
+        private void HandleCollisionAvoidance()
+        {
+            // Draw two rays in a v shape in the forward direction of the agent, with a small offset in the x-axis
+            // if either ray hits an obstacle, apply a steering force to avoid the obstacle
+            // if it hit a cover object, try to seek cover
+            Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+            Vector3 rayDirection = transform.forward * raylength;
+            Vector3 leftRayDirection = Quaternion.Euler(0, -rayAngle, 0) * rayDirection;
+            Vector3 rightRayDirection = Quaternion.Euler(0, rayAngle, 0) * rayDirection;
+
+
+            bool leftRayHit = Physics.Raycast(rayOrigin, leftRayDirection, out RaycastHit leftHit, raylength, obstacleLayerMask);
+            bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
+
+            if (leftRayHit)
+            {
+                // check if any hit is a cover object
+                if (leftHit.collider.CompareTag("Cover"))
+                {
+                    // Try to seek cover
+                    Cover cover = leftHit.collider.GetComponent<Cover>();
+                    if (cover != null && cover.IsCoverAvailable())
+                    {
+                        if (cover.TryOccupyCover(this, out Transform coverTransform))
+                        {
+                            SeekCover(coverTransform);
+                            return; // Exit to avoid applying avoidance force
+                        }
+                    }
+                }
+                // Debug.Log("Left ray hit: " + leftHit.collider.name);
+                // Apply a steering force to the right
+                Vector3 avoidanceForce = transform.right * maxSpeed;
+                Velocity += avoidanceForce * Time.deltaTime;
+            }
+
+            if (rightRayHit)
+            {
+                // check if any hit is a cover object
+                if (rightHit.collider.CompareTag("Cover"))
+                {
+                    // Try to seek cover
+                    Cover cover = rightHit.collider.GetComponent<Cover>();
+                    if (cover != null && cover.IsCoverAvailable())
+                    {
+                        if (cover.TryOccupyCover(this, out Transform coverTransform))
+                        {
+                            SeekCover(coverTransform);
+                            return; // Exit to avoid applying avoidance force
+                        }
+                    }
+                }
+                // Debug.Log("Right ray hit: " + rightHit.collider.name);
+                // Apply a steering force to the left
+                Vector3 avoidanceForce = -transform.right * maxSpeed;
+                Velocity += avoidanceForce * Time.deltaTime;
+            }
+
+            if (debug) VisualizeNavigationRays(raylength, rayAngle);
+        }
+
+        private void VisualizeNavigationRays(float length = 5.0f, float angle = 15.0f)
+        {
+            // draw a v-shaped ray in the forward direction of the agent, with a small offset in the x-axis
+            Vector3 origin = transform.position + Vector3.up * 0.1f;
+            Vector3 direction = transform.forward * length;
+            // tilt the ray direction to the left and right by 15 degrees
+            Vector3 leftDirection = Quaternion.Euler(0, -angle, 0) * direction;
+            Vector3 rightDirection = Quaternion.Euler(0, angle, 0) * direction;
+            Debug.DrawRay(origin, leftDirection, Color.green);
+            Debug.DrawRay(origin, rightDirection, Color.green); 
         }
         #endregion
     }
 
-    public enum AIState
-    {
-        Moving,
-        SeekCover,
-        InCover,
-    }
+
 }
