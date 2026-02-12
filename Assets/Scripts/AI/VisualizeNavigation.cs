@@ -1,5 +1,8 @@
 using UnityEngine;
 
+namespace Utilities
+{
+    
 // execute in edit mode so that the visualization is visible in the Scene view when the game is not running
 [ExecuteInEditMode]
 public class VisualizeNavigation : MonoBehaviour
@@ -24,4 +27,6 @@ public class VisualizeNavigation : MonoBehaviour
         Debug.DrawRay(origin, leftDirection, Color.green);
         Debug.DrawRay(origin, rightDirection, Color.green); 
     }
+}
+
 }

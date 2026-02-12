@@ -17,6 +17,9 @@ namespace AI
 
         [Header("DEBUG: NO ASSIGNMENT")]
         [SerializeField] private Vector3 targetPosition;
+        [SerializeField] private AIState currentState;
+
+        #region Properties
         public Vector3 TargetPosition
         {
             get => trackedTarget != null ? trackedTarget.position : targetPosition;
@@ -47,21 +50,43 @@ namespace AI
         {
             trackedTarget = targetTransform;
         }
-
+        
         public void UnTrackTarget()
         {
             trackedTarget = null;
         }
+        #endregion
 
+        #region Unity
         private void Awake()
         {
+            // Default state is always moving
+            currentState = AIState.Moving;
+
             // animator = GetComponent<Animator>();
         }
 
         private void Update()
         {
             if (debug)
+            {
                 Debug.DrawRay(transform.position, Velocity, Color.red);
+                targetPosition = TargetPosition;
+            }
+
+            HandleMovement();
+
+            // animator.SetBool("walking", Velocity.magnitude > 0);
+            // animator.SetBool("running", Velocity.magnitude > maxSpeed/2);
+        }
+        #endregion
+
+        #region AI movement
+        // Movement handler method, for different AI behaviors
+        private void HandleMovement()
+        {
+            if (currentState != AIState.Moving)
+                return;
 
             if (behaviorType == EBehaviorType.Kinematic)
             {
@@ -81,11 +106,7 @@ namespace AI
 
             // apply velocity
             transform.position += Velocity * Time.deltaTime;
-
-            // animator.SetBool("walking", Velocity.magnitude > 0);
-            // animator.SetBool("running", Velocity.magnitude > maxSpeed/2);
         }
-
         private void GetKinematicAvg(out Vector3 kinematicAvg, out Quaternion rotation)
         {
             kinematicAvg = Vector3.zero;
@@ -124,5 +145,20 @@ namespace AI
                 rotation *= movement.GetSteering(this).angular;
             }
         }
+        #endregion
+
+        #region AI State
+        public void SetState(AIState newState)
+        {
+            currentState = newState;
+        }
+        #endregion
+    }
+
+    public enum AIState
+    {
+        Moving,
+        SeekCover,
+        InCover,
     }
 }

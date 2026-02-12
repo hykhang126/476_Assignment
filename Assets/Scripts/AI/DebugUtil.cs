@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+namespace Utilities
+{
+	
 public static class DebugUtil
 {
 	public static void DrawCircle(Vector3 position, Vector3 up, Color color, float radius = 1f)
@@ -120,4 +123,6 @@ public static class DebugUtil
 		Debug.DrawRay(origin + Vector3.up * 0.1f, direction * 0.9f + Vector3.up * 0.1f, color, duration, depthTest);
 		Debug.DrawRay(origin - Vector3.up * 0.1f, direction * 0.9f - Vector3.up * 0.1f, color, duration, depthTest);
 	}
+}
+
 }
