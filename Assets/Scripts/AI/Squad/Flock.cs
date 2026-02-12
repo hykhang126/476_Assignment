@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 
 using System.Collections.Generic;
+using AI;
 
 public class Flock : MonoBehaviour 
 {
     public bool debug;
+
+    [Header("Flock Settings")]
     public int startingFlockCount = 20;
     public GameObject flockAgentPrefab;
     public float neighborRadius = 5;
@@ -13,10 +16,12 @@ public class Flock : MonoBehaviour
     public float avoidanceFactor = 2f;
     public float seekSpeed = 3f;
 
-    private List<FlockAgent> swarm = new List<FlockAgent>();
+    [Header("Flock Targets")]
+    public float targetReachThreshold = 5f;
+    public Transform[] targetsPreset;
 
-    [SerializeField] Transform[] targetsPreset;
-    private Queue<Transform> targetList = new Queue<Transform>();
+    private List<Flocking> swarm = new();
+    private Queue<Transform> targetList = new();
 
     private void Start()
     {
@@ -56,6 +61,9 @@ public class Flock : MonoBehaviour
         //     agent.avoidanceFactor = avoidanceFactor;
         //     agent.seekSpeed = seekSpeed;
         // }
+
+        // Check if the target has been reached by the swarm (using the first agent as a reference)
+        CheckIfTargetReached();
     }
 
     private void GenerateTargets()
@@ -73,11 +81,12 @@ public class Flock : MonoBehaviour
         
     }
 
-    private void SetNewSwarmTarget()
+    [ContextMenu("Set New Swarm Target")]
+    public void SetNewSwarmTarget()
     {
         // Managing the Queue. We grab the target, set the swarmlings on it, then requeue it at the back.
         Transform target = targetList.Dequeue();
-        foreach (FlockAgent agent in swarm)
+        foreach (Flocking agent in swarm)
         {
             agent.SetTarget(target);
         }
@@ -97,8 +106,9 @@ public class Flock : MonoBehaviour
                 transform.position + randomPos, 
                 Quaternion.identity, 
                 transform)
-                .TryGetComponent<FlockAgent>(out var agent))
+                .TryGetComponent<Flocking>(out var agent))
             {
+                agent.Initialize(neighborRadius, avoidanceRadius, cohesionFactor, avoidanceFactor, seekSpeed);
                 swarm.Add(agent);
             }
         }
@@ -107,5 +117,25 @@ public class Flock : MonoBehaviour
     public void AddTarget(Transform target)
     {
         targetList.Enqueue(target);
+    }
+
+    public void OnFlockMove()
+    {
+        // TODO: handle any necessary logic when the flock moves, such as checking if the target has been reached, updating the target for each agent, etc.
+    }
+
+    public void CheckIfTargetReached()
+    {
+        if (swarm.Count == 0)
+            return;
+
+        // Check the distance for every agent to the target, and if they're all within a certain threshold, we can say the target has been reached.
+        foreach (Flocking agent in swarm)
+        {
+            AIAgent aiAgent = agent.GetComponent<AIAgent>();
+            if (Vector3.Distance(agent.transform.position, aiAgent.TargetPosition) > targetReachThreshold)
+                return;
+        }
+        SetNewSwarmTarget();
     }
 }

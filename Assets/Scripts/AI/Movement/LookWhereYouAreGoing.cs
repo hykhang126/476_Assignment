@@ -34,6 +34,8 @@ namespace AI
             else
                 output.angular = Quaternion.FromToRotation(agent.transform.forward, GetKinematic(agent).angular * Vector3.forward);
 
+            if (debug) Debug.DrawRay(transform.position + agent.Velocity, output.angular * Vector3.forward, Color.darkGreen);
+            
             return output;
         }
     }

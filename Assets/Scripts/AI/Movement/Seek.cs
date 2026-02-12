@@ -6,7 +6,7 @@ namespace AI
     {
         public override SteeringOutput GetKinematic(AIAgent agent)
         {
-            var output = base.GetKinematic(agent);
+            SteeringOutput output = base.GetKinematic(agent);
 
             // TODO: calculate linear component
             Vector3 desiredVelocity = agent.TargetPosition - agent.transform.position;
@@ -19,11 +19,14 @@ namespace AI
 
         public override SteeringOutput GetSteering(AIAgent agent)
         {
-            var output = base.GetSteering(agent);
+            SteeringOutput output = base.GetSteering(agent);
 
             // TODO: calculate linear component
             Vector3 desiredVelocity = agent.TargetPosition - agent.transform.position;
-            output.linear = desiredVelocity.normalized * agent.maxSpeed - agent.Velocity;
+            desiredVelocity = desiredVelocity.normalized * agent.maxSpeed;
+            Vector3 steering = desiredVelocity - agent.Velocity;
+            
+            output.linear = steering;
 
             if (debug) Debug.DrawRay(transform.position + agent.Velocity, output.linear, Color.green);
 

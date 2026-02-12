@@ -14,10 +14,11 @@ namespace AI
         // private Animator animator;
 
         public Transform trackedTarget;
+        public Transform flockTarget;
 
         [Header("DEBUG: NO ASSIGNMENT")]
-        [SerializeField] private Vector3 targetPosition;
         [SerializeField] private AIState currentState;
+        [SerializeField] private Vector3 targetPosition;
 
         #region Properties
         public Vector3 TargetPosition
@@ -74,10 +75,32 @@ namespace AI
                 targetPosition = TargetPosition;
             }
 
+            HandleTargetTracking();
+
             HandleMovement();
+            HandleStateChange();
+
+            FixYPosition();
 
             // animator.SetBool("walking", Velocity.magnitude > 0);
             // animator.SetBool("running", Velocity.magnitude > maxSpeed/2);
+        }
+        #endregion
+
+        #region AI Target
+        private void HandleTargetTracking()
+        {
+            // State dependent. If Moving (flocking) then target the flock target, else target the tracked target
+            if (currentState == AIState.Moving)
+            {
+                if (flockTarget != null)
+                    TrackTarget(flockTarget);
+            }
+            else
+            {
+                if (trackedTarget != null)
+                    TrackTarget(trackedTarget);
+            }
         }
         #endregion
 
@@ -85,9 +108,6 @@ namespace AI
         // Movement handler method, for different AI behaviors
         private void HandleMovement()
         {
-            if (currentState != AIState.Moving)
-                return;
-
             if (behaviorType == EBehaviorType.Kinematic)
             {
                 // TODO: average all kinematic behaviors attached to this object to obtain the final kinematic output and then apply it
@@ -115,6 +135,13 @@ namespace AI
             int count = 0;
             foreach (AIMovement movement in movements)
             {
+                // Check if Agent should flock based on their State
+                if (movement is Flocking flockAgent)
+                {
+                    if (currentState != AIState.Moving)
+                        continue;
+                }
+
                 kinematicAvg += movement.GetKinematic(this).linear;
                 eulerAvg += movement.GetKinematic(this).angular.eulerAngles;
 
@@ -145,12 +172,27 @@ namespace AI
                 rotation *= movement.GetSteering(this).angular;
             }
         }
+
+        private void FixYPosition()
+        {
+            if (lockY)
+            {
+                Vector3 pos = transform.position;
+                pos.y = 0f; // MAGIC NUMBER
+                transform.position = pos;
+            }
+        }
         #endregion
 
         #region AI State
         public void SetState(AIState newState)
         {
             currentState = newState;
+        }
+
+        private void HandleStateChange()
+        {
+            // TODO: handle any necessary logic when changing states, such as clearing targets, resetting timers, etc.
         }
         #endregion
     }

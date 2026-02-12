@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 48b0f2c4fc08298458152ac35446a67f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 415a7ba6845c3074fa75c86d6947b5a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VisualizeNavigation
-  visualizeNavigationRays: 1
+  visualizeNavigationRays: 0
   rayLength: 5
 --- !u!114 &5753859209613515739
 MonoBehaviour:
@@ -209,8 +209,9 @@ MonoBehaviour:
   debug: 1
   behaviorType: 1
   trackedTarget: {fileID: 0}
-  targetPosition: {x: 0, y: 0, z: 0}
+  flockTarget: {fileID: 0}
   currentState: 0
+  targetPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &5453484574790828178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,9 +251,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlockAgent
   debug: 1
-  target: {fileID: 0}
   neighborRadius: 5
   avoidanceRadius: 3.5
   cohesionFactor: 1.5
   avoidanceFactor: 2
   seekSpeed: 3
+  neighborBuffer:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
