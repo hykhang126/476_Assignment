@@ -88,7 +88,8 @@ public class Flock : MonoBehaviour
         Transform target = targetList.Dequeue();
         foreach (Flocking agent in swarm)
         {
-            agent.SetTarget(target);
+            agent.SetTarget(target, agent.AIAgent);
+            agent.SetState(AIState.Moving, agent.AIAgent);
         }
         targetList.Enqueue(target);
     }

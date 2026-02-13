@@ -135,7 +135,7 @@ GameObject:
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &321840995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,9 +507,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 357772806}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: CoverTarget
-  m_TagString: Untagged
+  m_TagString: Target
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1056,9 +1056,9 @@ GameObject:
   - component: {fileID: 2005668822}
   - component: {fileID: 2005668821}
   - component: {fileID: 2005668825}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cover
-  m_TagString: Untagged
+  m_TagString: Cover
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1169,6 +1169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5102a8dd43dd094419100e3c9d563c42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  coverTargets: []
 --- !u!1 &2097959294
 GameObject:
   m_ObjectHideFlags: 0
@@ -1178,9 +1179,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2097959295}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: CoverTarget (1)
-  m_TagString: Untagged
+  m_TagString: Target
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1212,6 +1213,10 @@ PrefabInstance:
       propertyPath: trackedTarget
       value: 
       objectReference: {fileID: 1791597296}
+    - target: {fileID: 5753859209613515739, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
+      propertyPath: obstacleLayerMask.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
     - target: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
       propertyPath: m_Name
       value: Agent

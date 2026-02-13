@@ -100,7 +100,6 @@ GameObject:
   - component: {fileID: 6893023820517555040}
   - component: {fileID: 3580224681397682273}
   - component: {fileID: 7385449070287376216}
-  - component: {fileID: 8669128144716079613}
   - component: {fileID: 5753859209613515739}
   - component: {fileID: 5453484574790828178}
   - component: {fileID: 3864620654873075758}
@@ -178,20 +177,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8669128144716079613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6428420551053372938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 415a7ba6845c3074fa75c86d6947b5a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VisualizeNavigation
-  visualizeNavigationRays: 0
-  rayLength: 5
 --- !u!114 &5753859209613515739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,6 +193,11 @@ MonoBehaviour:
   lockY: 1
   debug: 1
   behaviorType: 1
+  raylength: 5
+  rayAngle: 15
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
   trackedTarget: {fileID: 0}
   flockTarget: {fileID: 0}
   currentState: 0
@@ -251,10 +241,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlockAgent
   debug: 1
+  flockFactor: 1
   neighborRadius: 5
   avoidanceRadius: 3.5
-  cohesionFactor: 1.5
-  avoidanceFactor: 2
+  cohesionFactor: 2
+  avoidanceFactor: 3
   seekSpeed: 3
   neighborBuffer:
   - {fileID: 0}

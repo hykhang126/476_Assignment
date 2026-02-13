@@ -15,5 +15,21 @@ namespace AI
         {
             return new SteeringOutput { angular = Quaternion.identity };
         }
+
+        public virtual void SetTarget(Transform target, AIAgent agent)
+        {
+            if (agent != null)
+            {
+                agent.TrackTarget(target);
+            }
+        }
+
+        public virtual void SetState(AIState state, AIAgent agent)
+        {
+            if (agent != null)
+            {
+                agent.SetState(state);
+            }
+        }
     }
 }

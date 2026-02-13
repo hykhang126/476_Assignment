@@ -8,15 +8,16 @@ public class Flocking : AIMovement
 {
 
     [Header("DEBUG: Flock Settings")]
-    public float flockFactor = 0.3f;   
+    public float flockFactor = 0.5f;   
     public float neighborRadius = 5;
     public float avoidanceRadius = 3.5f;
-    public float cohesionFactor = 1.5f;
+    public float cohesionFactor = 2f;
     public float avoidanceFactor = 2f;
     public float seekSpeed = 3f;    // Useless right now
 
     private SteeringOutput movement;
     private AIAgent agent;
+    public AIAgent AIAgent => agent;
     [SerializeField] private Collider[] neighborBuffer = new Collider[50];
 	
     private void Awake()
@@ -27,6 +28,9 @@ public class Flocking : AIMovement
 
 	public override SteeringOutput GetSteering(AIAgent agent) 
     {
+        // reset movement
+        movement = new SteeringOutput();
+
         Collider[] neighbors = GetNeighborContext();
         Cohesion(neighbors);
         Avoidance(neighbors);
@@ -75,11 +79,9 @@ public class Flocking : AIMovement
         if (neighbors.Length > 0)
         {
             cohesiveMovement /= neighbors.Length;
-            cohesiveMovement -= transform.position;
         }
 
-        // Steering is the change in velocity, so we need to subtract the current velocity from the desired velocity to get the correct "force" to apply.
-        movement.linear += cohesionFactor * cohesiveMovement.normalized - agent.Velocity;
+        movement.linear += cohesionFactor * cohesiveMovement.normalized;
     }
 
     // This is the force that dictates the spacing of the swarm.
@@ -110,7 +112,7 @@ public class Flocking : AIMovement
             avoidanceMovement = avoidanceMovement.normalized / neighbors.Length;
         }
 
-        movement.linear += avoidanceFactor * avoidanceMovement - agent.Velocity;
+        movement.linear += avoidanceFactor * avoidanceMovement;
     }
 
     // This "force" has each of the agents try to synch their orientation.
@@ -158,7 +160,7 @@ public class Flocking : AIMovement
             this.agent = agent;
     }
 
-    public void SetTarget(Transform target)
+    public override void SetTarget(Transform target, AIAgent agent)
     {
         // TODO : set the target for this agent to seek towards
         agent.flockTarget = target;
