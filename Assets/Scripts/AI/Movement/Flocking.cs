@@ -29,7 +29,7 @@ public class Flocking : AIMovement
 	public override SteeringOutput GetSteering(AIAgent agent) 
     {
         // reset movement
-        movement = new SteeringOutput();
+        movement = base.GetSteering(agent);
 
         Collider[] neighbors = GetNeighborContext();
         Cohesion(neighbors);

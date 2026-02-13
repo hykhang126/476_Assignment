@@ -1,3 +1,4 @@
+using System.Linq;
 using AI;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public class Cover : MonoBehaviour
 {
     [Header("DEBUG: Cover Settings")]
     public CoverTarget[] coverTargets;
+    public AIAgent[] occupyingAgents;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -12,7 +14,6 @@ public class Cover : MonoBehaviour
         FindCoverTargets();
     }
 
-    // Update is called once per frame
     public bool IsCoverAvailable()
     {
         foreach (CoverTarget target in coverTargets)
@@ -25,11 +26,22 @@ public class Cover : MonoBehaviour
 
     public bool TryOccupyCover(AIAgent agent, out Transform coverTransform)
     {
+        // Check if agent is already occupying a cover, then don't give this cover to them
+        if (occupyingAgents.Contains(agent))
+        {
+            coverTransform = null;
+            return false;
+        }
+
         for (int i = 0; i < coverTargets.Length; i++)
         {
             if (!coverTargets[i].IsOccupied())
             {
+                // Update Cover Targets and Occupying Agents list
                 coverTargets[i].occupyingAgent = agent;
+                occupyingAgents[i] = agent;
+
+                // Return the free cover transform to the caller
                 coverTransform = coverTargets[i].coverTransform;
                 return true;
             }
@@ -43,6 +55,7 @@ public class Cover : MonoBehaviour
     {
         int numberOfChildren = transform.childCount;
         coverTargets = new CoverTarget[numberOfChildren];
+        occupyingAgents = new AIAgent[numberOfChildren];
 
         for (int i = 0; i < coverTargets.Length; i++)
         {
@@ -56,7 +69,7 @@ public class Cover : MonoBehaviour
         public Transform coverTransform;
         public AIAgent occupyingAgent;
 
-        public bool IsOccupied()
+        public readonly bool IsOccupied()
         {
             return occupyingAgent != null;
         }

@@ -27,16 +27,19 @@ namespace Utilities
         // Update is called once per frame
         void Update()
         {
-            if (visualizeNavigationRays) VisualizeNavigationRays();
-
             if (visualizeNavigationRays && agent != null)
             {
+                VisualizeCollisionRays();
+
                 Debug.DrawRay(transform.position, agent.Velocity, Color.red);
                 agent.trackedTargetPosition = agent.TargetPosition;
+
+                // draw a blue ray from the agent to the tracked target position
+                Debug.DrawRay(transform.position, agent.TargetPosition - transform.position, Color.blue);
             }
         }
 
-        private void VisualizeNavigationRays()
+        private void VisualizeCollisionRays()
         {
             // draw a v-shaped ray in the forward direction of the agent, with a small offset in the x-axis
             Vector3 origin = transform.position + Vector3.up * 0.1f;

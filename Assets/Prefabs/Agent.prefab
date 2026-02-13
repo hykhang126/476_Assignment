@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 6893023820517555040}
   - component: {fileID: 3580224681397682273}
   - component: {fileID: 7385449070287376216}
+  - component: {fileID: 5212396709024917363}
   - component: {fileID: 5753859209613515739}
   - component: {fileID: 5453484574790828178}
   - component: {fileID: 3864620654873075758}
@@ -177,6 +178,22 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5212396709024917363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428420551053372938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 415a7ba6845c3074fa75c86d6947b5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Utilities.VisualizeNavigation
+  visualizeNavigationRays: 1
+  grabFromAIAgent: 1
+  rayLength: 5
+  rayAngle: 15
 --- !u!114 &5753859209613515739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,17 +208,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AI.AIAgent
   maxSpeed: 2
   lockY: 1
-  debug: 1
   behaviorType: 1
   raylength: 5
   rayAngle: 15
   obstacleLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 192
+  avoidanceForce: 10
   trackedTarget: {fileID: 0}
   flockTarget: {fileID: 0}
   currentState: 0
-  targetPosition: {x: 0, y: 0, z: 0}
+  trackedTargetPosition: {x: 0, y: 0, z: -7.75}
 --- !u!114 &5453484574790828178
 MonoBehaviour:
   m_ObjectHideFlags: 0

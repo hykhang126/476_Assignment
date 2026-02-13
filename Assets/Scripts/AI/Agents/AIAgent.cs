@@ -32,7 +32,7 @@ namespace AI
         public Transform flockTarget;
 
         [Header("DEBUG: NO ASSIGNMENT")]
-        [SerializeField] private AIState currentState;
+        public AIState currentState;
         [Tooltip("The position the agent is trying to reach. Just a Vector3 presentation of tracked target.")]
         public Vector3 trackedTargetPosition;
 
@@ -93,7 +93,7 @@ namespace AI
 
             ArriveTarget();
 
-            FixYPosition();
+            FixOrientation();
 
             // animator.SetBool("walking", Velocity.magnitude > 0);
             // animator.SetBool("running", Velocity.magnitude > maxSpeed/2);
@@ -152,13 +152,6 @@ namespace AI
             int count = 0;
             foreach (AIMovement movement in movements)
             {
-                // Check if Agent should flock based on their State
-                if (movement is Flocking flockAgent)
-                {
-                    if (currentState != AIState.Moving)
-                        continue;
-                }
-
                 kinematicAvg += movement.GetKinematic(this).linear;
                 eulerAvg += movement.GetKinematic(this).angular.eulerAngles;
 
@@ -190,7 +183,7 @@ namespace AI
             }
         }
 
-        private void FixYPosition()
+        private void FixOrientation()
         {
             if (lockY)
             {
@@ -198,6 +191,9 @@ namespace AI
                 pos.y = 0f; // MAGIC NUMBER
                 transform.position = pos;
             }
+
+            // Set the agent xz rotation to 0
+            transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
         }
         #endregion
 
@@ -239,9 +235,14 @@ namespace AI
             bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
 
             // if ray hits a cover, do cover occupy logic. Else apply avoidance force
-            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit))
+            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform) && currentState != AIState.InCover)
             {
-                return; // Exit to avoid applying avoidance force
+                SeekCover(coverTransform);
+                // maybe restore health and update UI later
+            }
+            else
+            {
+                SetState(AIState.Moving);
             }
             
             // Apply avoidance force if obstacle detected
@@ -265,10 +266,13 @@ namespace AI
             
         }
 
-        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit)
+        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, out Transform coverTransform)
         {
-            if (currentState != AIState.InCover && leftRayHit)
+            coverTransform = null;
+
+            if (leftRayHit)
             {
+                // Debug.Log("Left ray hit: " + leftHit.collider.name);
                 // check if any hit is a cover object
                 if (leftHit.collider.CompareTag("Cover"))
                 {
@@ -276,18 +280,14 @@ namespace AI
                     Cover cover = leftHit.collider.GetComponent<Cover>();
                     if (cover != null && cover.IsCoverAvailable())
                     {
-                        if (cover.TryOccupyCover(this, out Transform coverTransform))
-                        {
-                            SeekCover(coverTransform);
-                            return true; // Exit to avoid applying avoidance force
-                        }
+                        return cover.TryOccupyCover(this, out coverTransform);
                     }
                 }
-                // Debug.Log("Left ray hit: " + leftHit.collider.name);
             }
 
-            if (currentState != AIState.InCover && rightRayHit)
+            if (rightRayHit)
             {
+                // Debug.Log("Right ray hit: " + rightHit.collider.name);
                 // check if any hit is a cover object
                 if (rightHit.collider.CompareTag("Cover"))
                 {
@@ -295,15 +295,11 @@ namespace AI
                     Cover cover = rightHit.collider.GetComponent<Cover>();
                     if (cover != null && cover.IsCoverAvailable())
                     {
-                        if (cover.TryOccupyCover(this, out Transform coverTransform))
-                        {
-                            SeekCover(coverTransform);
-                            return true; // Exit to avoid applying avoidance force
-                        }
+                        return cover.TryOccupyCover(this, out coverTransform);
                     }
                 }
-                // Debug.Log("Right ray hit: " + rightHit.collider.name);
             }
+
             return false;
         }
 
