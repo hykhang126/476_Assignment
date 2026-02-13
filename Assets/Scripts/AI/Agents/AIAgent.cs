@@ -1,11 +1,13 @@
 using UnityEditor.EditorTools;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AI
 {
     public enum AIState
     {
         Moving,
+        InDanger,
         SeekCover,
         InCover,
     }
@@ -33,6 +35,8 @@ namespace AI
 
         [Header("DEBUG: NO ASSIGNMENT")]
         public AIState currentState;
+        public UnityEvent<AIState> OnStateChange;
+        private Cover currentCover;
         [Tooltip("The position the agent is trying to reach. Just a Vector3 presentation of tracked target.")]
         public Vector3 trackedTargetPosition;
 
@@ -75,6 +79,16 @@ namespace AI
         #endregion
 
         #region Unity
+        private void OnEnable()
+        {
+            OnStateChange.AddListener(HandleOnStateChange);           
+        }
+
+        private void OnDisable()
+        {
+            OnStateChange.RemoveListener(HandleOnStateChange);
+        }
+
         private void Awake()
         {
             // Default state is always moving
@@ -200,6 +214,21 @@ namespace AI
         #region AI State
         public void SetState(AIState newState)
         {
+            OnStateChange.Invoke(newState);
+        }
+
+        private void HandleOnStateChange(AIState newState)
+        {
+            if (newState == currentState)
+                return;
+            
+            // if state changed from InCover to something else, reset cover occupancy
+            if (currentState == AIState.InCover)
+            {
+                Cover.RemoveCoverOccupant(this, currentCover);
+                currentCover = null;
+            }
+
             currentState = newState;
         }
 
@@ -235,14 +264,11 @@ namespace AI
             bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
 
             // if ray hits a cover, do cover occupy logic. Else apply avoidance force
-            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform) && currentState != AIState.InCover)
+            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform, out currentCover) 
+                && currentState == AIState.InDanger)
             {
                 SeekCover(coverTransform);
                 // maybe restore health and update UI later
-            }
-            else
-            {
-                SetState(AIState.Moving);
             }
             
             // Apply avoidance force if obstacle detected
@@ -266,9 +292,10 @@ namespace AI
             
         }
 
-        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, out Transform coverTransform)
+        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, out Transform coverTransform, out Cover currentCover)
         {
             coverTransform = null;
+            currentCover = null;
 
             if (leftRayHit)
             {
@@ -280,6 +307,7 @@ namespace AI
                     Cover cover = leftHit.collider.GetComponent<Cover>();
                     if (cover != null && cover.IsCoverAvailable())
                     {
+                        currentCover = cover;
                         return cover.TryOccupyCover(this, out coverTransform);
                     }
                 }

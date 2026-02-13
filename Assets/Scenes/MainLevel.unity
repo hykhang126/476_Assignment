@@ -135,7 +135,7 @@ GameObject:
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &321840995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
   neighborRadius: 5
   avoidanceRadius: 5
   cohesionFactor: 1
-  avoidanceFactor: 2
+  avoidanceFactor: 1
   seekSpeed: 3
   targetReachThreshold: 5
   targetsPreset:
@@ -835,7 +835,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6893023820517555040, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1290,6 +1290,10 @@ PrefabInstance:
     - target: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
       propertyPath: m_Name
       value: Agent
+      objectReference: {fileID: 0}
+    - target: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6893023820517555040, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
       propertyPath: m_LocalPosition.x
