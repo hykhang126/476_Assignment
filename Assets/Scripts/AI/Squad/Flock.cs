@@ -20,8 +20,8 @@ public class Flock : MonoBehaviour
     public float targetReachThreshold = 5f;
     public Transform[] targetsPreset;
 
-    private List<Flocking> swarm = new();
-    private Queue<Transform> targetList = new();
+    public List<Flocking> swarm = new();
+    public Queue<Transform> targetList = new();
 
     private void Start()
     {
@@ -111,6 +111,9 @@ public class Flock : MonoBehaviour
             {
                 agent.Initialize(neighborRadius, avoidanceRadius, cohesionFactor, avoidanceFactor, seekSpeed);
                 swarm.Add(agent);
+                // register events
+                if (agent.AIAgent != null)
+                    agent.AIAgent.agentDiedEvent.AddListener(HandleAgentDeath);
             }
         }
     }
@@ -138,5 +141,16 @@ public class Flock : MonoBehaviour
                 return;
         }
         SetNewSwarmTarget();
+    }
+
+    public void HandleAgentDeath(AIAgent agent)
+    {
+        // Remove the dead agent from the swarm list
+        Flocking agentToRemove = swarm.Find(a => a.GetComponent<AIAgent>() == agent);
+        if (agentToRemove != null)
+        {
+            swarm.Remove(agentToRemove);
+            Destroy(agentToRemove.gameObject);
+        }
     }
 }

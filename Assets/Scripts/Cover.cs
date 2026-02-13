@@ -65,6 +65,7 @@ public class Cover : MonoBehaviour
 
     public static void RemoveCoverOccupant(AIAgent agent, Cover cover)
     {
+        if (cover == null || agent == null) return;
         // Find the cover target that the agent is occupying and set it to null
         if (cover.occupyingAgents.Contains(agent))
         {

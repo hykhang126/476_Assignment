@@ -8,6 +8,9 @@ namespace Utilities
     public class VisualizeNavigation : MonoBehaviour
     {
         [SerializeField] bool visualizeNavigationRays = true;
+        [SerializeField] bool visualizeVelocity = true;
+        [SerializeField] bool visualizeTarget = true;
+        [SerializeField] bool visualizeAvoidance = true;
         [SerializeField] bool grabFromAIAgent = true;
         [SerializeField] float rayLength = 5.0f;
         [SerializeField] float rayAngle = 15.0f;
@@ -30,12 +33,21 @@ namespace Utilities
             if (visualizeNavigationRays && agent != null)
             {
                 VisualizeCollisionRays();
-
+            }
+            if (visualizeVelocity && agent != null)
+            {
+                // draw a cyan ray from the agent in the direction of its velocity, with a length equal to the velocity magnitude
                 Debug.DrawRay(transform.position, agent.Velocity, Color.red);
-                agent.trackedTargetPosition = agent.TargetPosition;
-
-                // draw a blue ray from the agent to the tracked target position
-                Debug.DrawRay(transform.position, agent.TargetPosition - transform.position, Color.blue);
+            }
+            if (visualizeTarget && agent != null && agent.TargetPosition != null)
+            {
+                // draw a blue ray from the agent to its current target
+                Debug.DrawRay(transform.position, agent.TargetPosition - transform.position - Vector3.up * 0.5f, Color.blue);
+            }
+            if (visualizeAvoidance && agent != null && agent.avoidanceDirection != null)
+            {
+                // draw a yellow ray from the agent in the direction of its avoidance direction, with a length equal to the avoidance direction magnitude
+                Debug.DrawRay(transform.position, agent.avoidanceDirection, Color.yellow);
             }
         }
 

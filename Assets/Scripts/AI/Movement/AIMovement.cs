@@ -24,6 +24,11 @@ namespace AI
             }
         }
 
+        public virtual AIState GetState(AIAgent agent)
+        {
+            return agent.currentState;
+        }
+
         public virtual void SetState(AIState state, AIAgent agent)
         {
             if (agent != null)

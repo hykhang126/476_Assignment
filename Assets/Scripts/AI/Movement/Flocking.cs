@@ -68,17 +68,20 @@ public class Flocking : AIMovement
         // movement is equal to the relative offset from the flock agent to the center of the flock
         // TODO
 		Vector3 cohesiveMovement = Vector3.zero;
+        int count = 0;
         foreach (Collider neighbor in neighbors)
         {
             if (neighbor.transform == transform)
                 continue;
             
             cohesiveMovement += neighbor.transform.position;
+            count++;
         }
 
-        if (neighbors.Length > 0)
+        if (count > 0)
         {
-            cohesiveMovement /= neighbors.Length;
+            cohesiveMovement /= count;
+            cohesiveMovement -= transform.position;
         }
 
         movement.linear += cohesionFactor * cohesiveMovement.normalized;
@@ -158,6 +161,10 @@ public class Flocking : AIMovement
         this.seekSpeed = seekSpeed;
         if (agent != null)
             this.agent = agent;
+        else
+        {
+            this.agent = GetComponent<AIAgent>();
+        }
     }
 
     public override void SetTarget(Transform target, AIAgent agent)

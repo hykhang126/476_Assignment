@@ -21,6 +21,9 @@ namespace AI
         public enum EBehaviorType { Kinematic, Steering }
         public EBehaviorType behaviorType;
 
+        public float health = 100f;
+        public float damageAmount = 10f;
+
         [Header("Collsion Avoidance Settings")]
         public float raylength = 5f;
         public float rayAngle = 15f;
@@ -33,12 +36,16 @@ namespace AI
         public Transform trackedTarget;
         public Transform flockTarget;
 
+        [Header("Events")]
+        public UnityEvent<AIState> OnStateChange;
+        public UnityEvent<AIAgent> agentDiedEvent;
+
         [Header("DEBUG: NO ASSIGNMENT")]
         public AIState currentState;
-        public UnityEvent<AIState> OnStateChange;
         private Cover currentCover;
         [Tooltip("The position the agent is trying to reach. Just a Vector3 presentation of tracked target.")]
         public Vector3 trackedTargetPosition;
+        public Vector3 avoidanceDirection;
 
         #region Properties
         public Vector3 TargetPosition
@@ -76,6 +83,23 @@ namespace AI
         }
 
         public Vector3 Velocity { get; set; }
+
+        public void TakeDamage(float damage)
+        {
+            health -= damage;
+            if (health <= 0f)
+            {
+                Cover.RemoveCoverOccupant(this, currentCover);
+                agentDiedEvent.Invoke(this);
+            }
+        }
+
+        public void Heal(float amount)
+        {
+            health += amount;
+            health = Mathf.Clamp(health, 0f, 100f);
+        }
+
         #endregion
 
         #region Unity
@@ -103,11 +127,21 @@ namespace AI
 
             HandleMovement();
 
-            HandleCollisionAvoidance();
+            if (currentState == AIState.Moving)
+            {
+                HandleCollisionAvoidance();
+            }
+            else if (currentState == AIState.InDanger)
+            {
+                HandleFindCover();
+            }
 
-            ArriveTarget();
+            if (currentState == AIState.SeekCover) 
+                ArriveCoverTarget();
 
             FixOrientation();
+
+            HealthUpdate();
 
             // animator.SetBool("walking", Velocity.magnitude > 0);
             // animator.SetBool("running", Velocity.magnitude > maxSpeed/2);
@@ -232,12 +266,25 @@ namespace AI
             currentState = newState;
         }
 
-        private void ArriveTarget()
+        // Health increase while InCover state, else lose health. InDanger when health is below 50%
+        private void HealthUpdate()
         {
-            // Agent only arrives at Cover
-            if (currentState != AIState.SeekCover)
-                return;
+            if (currentState == AIState.InCover)
+            {
+                Heal(Time.deltaTime * damageAmount * 2f);
+            }
+            else
+            {
+                TakeDamage(Time.deltaTime * damageAmount);
+                if (health < 50f && currentState == AIState.Moving)
+                {
+                    SetState(AIState.InDanger);
+                }
+            }
+        }
 
+        private void ArriveCoverTarget()
+        {
             // If we are close to the target, stops and wait for squad command
             float arriveDistance = 1f;
             if (Vector3.Distance(transform.position, TargetPosition) <= arriveDistance)
@@ -262,20 +309,12 @@ namespace AI
 
             bool leftRayHit = Physics.Raycast(rayOrigin, leftRayDirection, out RaycastHit leftHit, raylength, obstacleLayerMask);
             bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
-
-            // if ray hits a cover, do cover occupy logic. Else apply avoidance force
-            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform, out currentCover) 
-                && currentState == AIState.InDanger)
-            {
-                SeekCover(coverTransform);
-                // maybe restore health and update UI later
-            }
             
             // Apply avoidance force if obstacle detected
             if (leftRayHit || rightRayHit)
             {
                 // Simple avoidance: steer away from the obstacle
-                Vector3 avoidanceDirection = Vector3.zero;
+                avoidanceDirection = Vector3.zero;
                 if (leftRayHit)
                 {
                     avoidanceDirection += transform.right; // steer right
@@ -290,6 +329,32 @@ namespace AI
                 Velocity += avoidanceForce * Time.deltaTime * avoidanceDirection;
             }
             
+        }
+
+        #endregion
+
+        #region AI Cover Seeking
+
+        public void HandleFindCover()
+        {
+            float coverRayLengthMod = 3f;
+            Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+            Vector3 rayDirection = transform.forward * raylength * coverRayLengthMod;
+            Vector3 leftRayDirection = Quaternion.Euler(0, -rayAngle, 0) * rayDirection;
+            Vector3 rightRayDirection = Quaternion.Euler(0, rayAngle, 0) * rayDirection;
+
+
+            bool leftRayHit = Physics.Raycast(rayOrigin, leftRayDirection, out RaycastHit leftHit, raylength, obstacleLayerMask);
+            bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
+
+            // if ray hits a cover, do cover occupy logic. Else apply avoidance force
+            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform, out currentCover) 
+                && currentState == AIState.InDanger)
+            {
+                SeekCover(coverTransform);
+                // maybe restore health and update UI later
+                return;
+            }
         }
 
         private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, out Transform coverTransform, out Cover currentCover)

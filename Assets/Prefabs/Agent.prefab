@@ -98,13 +98,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6893023820517555040}
-  - component: {fileID: 3580224681397682273}
+  - component: {fileID: 2409282961900292054}
   - component: {fileID: 7385449070287376216}
   - component: {fileID: 5212396709024917363}
   - component: {fileID: 5753859209613515739}
   - component: {fileID: 5453484574790828178}
   - component: {fileID: 3864620654873075758}
-  - component: {fileID: 7355523880233860943}
+  - component: {fileID: 3155510395252439704}
   m_Layer: 6
   m_Name: Agent
   m_TagString: Untagged
@@ -128,7 +128,7 @@ Transform:
   - {fileID: 7725188018220741962}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &3580224681397682273
+--- !u!54 &2409282961900292054
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -168,7 +168,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -190,7 +190,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 415a7ba6845c3074fa75c86d6947b5a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Utilities.VisualizeNavigation
-  visualizeNavigationRays: 1
+  visualizeNavigationRays: 0
+  visualizeVelocity: 1
+  visualizeTarget: 1
+  visualizeAvoidance: 1
   grabFromAIAgent: 1
   rayLength: 5
   rayAngle: 15
@@ -209,6 +212,8 @@ MonoBehaviour:
   maxSpeed: 2
   lockY: 1
   behaviorType: 1
+  health: 100
+  damageAmount: 10
   raylength: 5
   rayAngle: 15
   obstacleLayerMask:
@@ -217,8 +222,15 @@ MonoBehaviour:
   avoidanceForce: 10
   trackedTarget: {fileID: 0}
   flockTarget: {fileID: 0}
+  OnStateChange:
+    m_PersistentCalls:
+      m_Calls: []
+  agentDiedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   currentState: 0
   trackedTargetPosition: {x: 0, y: 0, z: -7.75}
+  avoidanceDirection: {x: 0, y: 0, z: 0}
 --- !u!114 &5453484574790828178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,8 +256,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dca6d841acac87d41a8ef57ee9c5ae56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI.LookWhereYouAreGoing
-  debug: 1
---- !u!114 &7355523880233860943
+  debug: 0
+--- !u!114 &3155510395252439704
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -256,13 +268,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dfe809a454ceb73488f91916a732e9ea, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FlockAgent
-  debug: 1
-  flockFactor: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Flocking
+  debug: 0
+  flockFactor: 0.5
   neighborRadius: 5
   avoidanceRadius: 3.5
   cohesionFactor: 2
-  avoidanceFactor: 3
+  avoidanceFactor: 2
   seekSpeed: 3
   neighborBuffer:
   - {fileID: 0}
