@@ -8,11 +8,16 @@ using System.Collections.Generic;
 /// </summary>
 public class GridGraph : MonoBehaviour
 {
-    [SerializeField, HideInInspector] public List<GridGraphNode> nodes = new List<GridGraphNode>();
-    [SerializeField] public GameObject nodePrefab;
+    [Header("Grid Generation Settings")]
+    public List<GridGraphNode> nodes = new List<GridGraphNode>();
+    public GameObject nodePrefab;
+    [Min(0)] public int generationGridColumns = 1;
+    [Min(0)] public int generationGridRows = 1;
+    [Min(0)] public float generationGridCellSize = 1;
 
     public int Count => nodes.Count;
 
+    [ContextMenu("Clear Grid")]
     public void Clear()
     {
         nodes.Clear();
@@ -27,6 +32,14 @@ public class GridGraph : MonoBehaviour
             n.adjacencyList.Remove(node);
 
         nodes.Remove(node);
+    }
+
+    #region Generate Grid
+
+    [ContextMenu("Generate Grid")]
+    public void GenerateGridWithCollisions()
+    {
+        GenerateGrid(true);
     }
 
     public void GenerateGrid(bool checkCollisions = true)
@@ -61,7 +74,7 @@ public class GridGraph : MonoBehaviour
                     obj = Instantiate(nodePrefab);
 
                 obj.name = $"Node ({nodes.Count})";
-                obj.tag = "Node";
+                obj.tag = "Target";
                 obj.transform.parent = transform;
                 obj.transform.position = genPosition;
 
@@ -113,12 +126,12 @@ public class GridGraph : MonoBehaviour
         return node.adjacencyList;
     }
 
-#region grid_generation_properties
+    #endregion
+
+    #region Draw Gizmos
 
     // grid generation properties
-    [HideInInspector, Min(0)] public int generationGridColumns = 1;
-    [HideInInspector, Min(0)] public int generationGridRows = 1;
-    [HideInInspector, Min(0)] public float generationGridCellSize = 1;
+
 
 #if UNITY_EDITOR
     [Header("Gizmos")]
@@ -148,5 +161,5 @@ public class GridGraph : MonoBehaviour
         }
     }
 #endif
-#endregion
+    #endregion
 }

@@ -53,9 +53,15 @@ namespace Utilities
 
         private void VisualizeCollisionRays()
         {
+            float rayLengthMod = 1f;
+            if (agent != null)
+            {
+                rayLengthMod = agent.currentState == AIState.InDanger ? agent.inDanderCoverRangeMod : rayLengthMod;
+            }
+
             // draw a v-shaped ray in the forward direction of the agent, with a small offset in the x-axis
             Vector3 origin = transform.position + Vector3.up * 0.1f;
-            Vector3 direction = transform.forward * rayLength;
+            Vector3 direction = transform.forward * rayLength * rayLengthMod;
             // tilt the ray direction to the left and right by 15 degrees
             Vector3 leftDirection = Quaternion.Euler(0, -rayAngle, 0) * direction;
             Vector3 rightDirection = Quaternion.Euler(0, 15, 0) * direction;

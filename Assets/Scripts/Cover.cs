@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AI;
 using UnityEngine;
@@ -33,16 +34,17 @@ public class Cover : MonoBehaviour
             return false;
         }
 
-        for (int i = 0; i < coverTargets.Length; i++)
+        // Find the closest unoccupied cover target to the agent and assign it to them
+        List<CoverTarget> sortedCoverTargets = 
+            coverTargets.OrderBy(target => Vector3.Distance(agent.transform.position, target.coverTransform.position)).ToList();
+        for (int i = 0; i < sortedCoverTargets.Count; i++)
         {
-            if (!coverTargets[i].IsOccupied())
+            if (!sortedCoverTargets[i].IsOccupied())
             {
-                // Update Cover Targets and Occupying Agents list
-                coverTargets[i].occupyingAgent = agent;
-                occupyingAgents[i] = agent;
-
-                // Return the free cover transform to the caller
-                coverTransform = coverTargets[i].coverTransform;
+                int originalIndex = System.Array.IndexOf(coverTargets, sortedCoverTargets[i]);
+                coverTargets[originalIndex].occupyingAgent = agent;
+                occupyingAgents[originalIndex] = agent;
+                coverTransform = coverTargets[originalIndex].coverTransform;
                 return true;
             }
         }

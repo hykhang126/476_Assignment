@@ -24,13 +24,14 @@ namespace AI
         [Header("In Danger Settings")]
         public float health = 100f;
         public float damageAmount = 10f;
-        public float inDangerSpeedMod = 1f;
+        public float inDangerSpeedMod = 2f;
+        public float inDanderCoverRangeMod = 5f;
 
         [Header("Collsion Avoidance Settings")]
         public float raylength = 5f;
         public float rayAngle = 15f;
         public LayerMask obstacleLayerMask;
-        public float avoidanceForce = 10f;
+        public float avoidanceForce = 20f;
 
         [Header("Target Tracking")]
         public Transform trackedTarget;
@@ -158,25 +159,31 @@ namespace AI
         #region AI Target
         private void HandleTargetTracking()
         {
-            // State dependent. If Moving (flocking) then target the flock target, else target the tracked target
-            if (currentState == AIState.Moving)
+            switch (currentState)
             {
+            case AIState.Moving:
                 if (flockTarget != null)
                     TrackTarget(flockTarget);
-            }
-            else if (currentState == AIState.SeekCover || currentState == AIState.InCover)
-            {
-                // Stay on tracked target
-            }
-            else
-            {
+                break;
+            
+            case AIState.InDanger:
+            case AIState.SeekCover:
+                // do nothing for now
+                break;
+            
+            case AIState.InCover:
+                UnTrackTarget();
+                break;
+            
+            default:
                 if (trackedTarget != null)
                     TrackTarget(trackedTarget);
+                break;
             }
         }
         #endregion
 
-        #region AI movement
+        #region AI Movement
         // Movement handler method, for different AI behaviors
         private void HandleMovement()
         {
@@ -198,15 +205,12 @@ namespace AI
 
             // apply velocity
             // If in danger, apply a modifier to the velocity to make the agent move faster
-            if (currentState == AIState.InDanger)
+            float speedMod = 1f;
+            if (currentState == AIState.InDanger || currentState == AIState.SeekCover)
             {
-                inDangerSpeedMod = 2f;
+                speedMod = inDangerSpeedMod;
             }
-            else
-            {
-                inDangerSpeedMod = 1f;
-            }
-            transform.position += inDangerSpeedMod * Time.deltaTime * Velocity;
+            transform.position += speedMod * Time.deltaTime * Velocity;
         }
         private void GetKinematicAvg(out Vector3 kinematicAvg, out Quaternion rotation)
         {
@@ -324,7 +328,7 @@ namespace AI
 
         #endregion
 
-        #region Collision Avoidance
+        #region AI Collision
         private void HandleCollisionAvoidance()
         {
             // Draw two rays in a v shape in the forward direction of the agent, with a small offset in the x-axis
@@ -340,6 +344,8 @@ namespace AI
             bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
             
             // Apply avoidance force if obstacle detected
+            
+
             if (leftRayHit || rightRayHit)
             {
                 // Simple avoidance: steer away from the obstacle
@@ -368,7 +374,7 @@ namespace AI
         {
             float coverRayLengthMod = 3f;
             Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
-            Vector3 rayDirection = transform.forward * raylength * coverRayLengthMod;
+            Vector3 rayDirection = coverRayLengthMod * raylength * inDanderCoverRangeMod * transform.forward;
             Vector3 leftRayDirection = Quaternion.Euler(0, -rayAngle, 0) * rayDirection;
             Vector3 rightRayDirection = Quaternion.Euler(0, rayAngle, 0) * rayDirection;
 
@@ -381,12 +387,12 @@ namespace AI
                 && currentState == AIState.InDanger)
             {
                 SeekCover(coverTransform);
-                // maybe restore health and update UI later
                 return;
             }
         }
 
-        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, out Transform coverTransform, out Cover currentCover)
+        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, 
+            out Transform coverTransform, out Cover currentCover)
         {
             coverTransform = null;
             currentCover = null;

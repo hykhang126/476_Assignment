@@ -113,13 +113,14 @@ public class Flock : MonoBehaviour
                 transform.position + randomPos, 
                 Quaternion.identity, 
                 transform)
-                .TryGetComponent<Flocking>(out var agent))
+                .TryGetComponent<Flocking>(out var flockAgent))
             {
-                agent.Initialize(neighborRadius, avoidanceRadius, cohesionFactor, avoidanceFactor, seekSpeed);
-                swarm.Add(agent);
+                string agentName = $"Flock Agent {i}";
+                flockAgent.Initialize(agentName, neighborRadius, avoidanceRadius, cohesionFactor, avoidanceFactor);
+                swarm.Add(flockAgent);
                 // register events
-                if (agent.AIAgent != null)
-                    agent.AIAgent.agentDiedEvent.AddListener(HandleAgentDeath);
+                if (flockAgent.AIAgent != null)
+                    flockAgent.AIAgent.agentDiedEvent.AddListener(HandleAgentDeath);
             }
         }
     }
