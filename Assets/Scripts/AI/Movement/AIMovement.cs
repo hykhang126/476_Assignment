@@ -28,13 +28,5 @@ namespace AI
         {
             return agent.currentState;
         }
-
-        public virtual void SetState(AIState state, AIAgent agent)
-        {
-            if (agent != null)
-            {
-                agent.SetState(state);
-            }
-        }
     }
 }

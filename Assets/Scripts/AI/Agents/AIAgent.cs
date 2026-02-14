@@ -21,8 +21,10 @@ namespace AI
         public enum EBehaviorType { Kinematic, Steering }
         public EBehaviorType behaviorType;
 
+        [Header("In Danger Settings")]
         public float health = 100f;
         public float damageAmount = 10f;
+        public float inDangerSpeedMod = 1f;
 
         [Header("Collsion Avoidance Settings")]
         public float raylength = 5f;
@@ -30,15 +32,9 @@ namespace AI
         public LayerMask obstacleLayerMask;
         public float avoidanceForce = 10f;
 
-        // private Animator animator;
-
         [Header("Target Tracking")]
         public Transform trackedTarget;
         public Transform flockTarget;
-
-        [Header("Events")]
-        public UnityEvent<AIState> OnStateChange;
-        public UnityEvent<AIAgent> agentDiedEvent;
 
         [Header("DEBUG: NO ASSIGNMENT")]
         public AIState currentState;
@@ -46,6 +42,10 @@ namespace AI
         [Tooltip("The position the agent is trying to reach. Just a Vector3 presentation of tracked target.")]
         public Vector3 trackedTargetPosition;
         public Vector3 avoidanceDirection;
+        
+        [Header("Events")]
+        public UnityEvent<AIState> OnStateChange;
+        public UnityEvent<AIAgent> agentDiedEvent;
 
         #region Properties
         public Vector3 TargetPosition
@@ -89,7 +89,11 @@ namespace AI
             health -= damage;
             if (health <= 0f)
             {
-                Cover.RemoveCoverOccupant(this, currentCover);
+                if (currentCover != null)
+                {
+                    currentCover.RemoveCoverOccupant(this);
+                    currentCover = null;
+                }
                 agentDiedEvent.Invoke(this);
             }
         }
@@ -138,6 +142,9 @@ namespace AI
 
             if (currentState == AIState.SeekCover) 
                 ArriveCoverTarget();
+            
+            if (currentState == AIState.InCover)
+                WaitToMove();
 
             FixOrientation();
 
@@ -190,7 +197,16 @@ namespace AI
             }
 
             // apply velocity
-            transform.position += Velocity * Time.deltaTime;
+            // If in danger, apply a modifier to the velocity to make the agent move faster
+            if (currentState == AIState.InDanger)
+            {
+                inDangerSpeedMod = 2f;
+            }
+            else
+            {
+                inDangerSpeedMod = 1f;
+            }
+            transform.position += inDangerSpeedMod * Time.deltaTime * Velocity;
         }
         private void GetKinematicAvg(out Vector3 kinematicAvg, out Quaternion rotation)
         {
@@ -248,7 +264,7 @@ namespace AI
         #region AI State
         public void SetState(AIState newState)
         {
-            OnStateChange.Invoke(newState);
+            HandleOnStateChange(newState);
         }
 
         private void HandleOnStateChange(AIState newState)
@@ -259,8 +275,11 @@ namespace AI
             // if state changed from InCover to something else, reset cover occupancy
             if (currentState == AIState.InCover)
             {
-                Cover.RemoveCoverOccupant(this, currentCover);
-                currentCover = null;
+                if (currentCover != null)
+                {
+                    currentCover.RemoveCoverOccupant(this);
+                    currentCover = null;
+                }
             }
 
             currentState = newState;
@@ -293,6 +312,16 @@ namespace AI
                 SetState(AIState.InCover);
             }
         }
+
+        private void WaitToMove()
+        {
+            // Stay in cover until health is fully restored, then switch to moving state
+            if (health >= 100f)
+            {
+                SetState(AIState.Moving);
+            }
+        }
+
         #endregion
 
         #region Collision Avoidance

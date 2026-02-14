@@ -63,15 +63,15 @@ public class Cover : MonoBehaviour
         }
     }
 
-    public static void RemoveCoverOccupant(AIAgent agent, Cover cover)
+    public void RemoveCoverOccupant(AIAgent agent)
     {
-        if (cover == null || agent == null) return;
+        if (agent == null) return;
         // Find the cover target that the agent is occupying and set it to null
-        if (cover.occupyingAgents.Contains(agent))
+        if (occupyingAgents.Contains(agent))
         {
-            int index = System.Array.IndexOf(cover.occupyingAgents, agent);
-            cover.coverTargets[index].occupyingAgent = null;
-            cover.occupyingAgents[index] = null;
+            int index = System.Array.IndexOf(occupyingAgents, agent);
+            coverTargets[index].occupyingAgent = null;
+            occupyingAgents[index] = null;
         }
     }
 

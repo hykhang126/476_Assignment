@@ -19,6 +19,7 @@ public class Flock : MonoBehaviour
     [Header("Flock Targets")]
     public float targetReachThreshold = 5f;
     public Transform[] targetsPreset;
+    public Transform currentTarget;
 
     public List<Flocking> swarm = new();
     public Queue<Transform> targetList = new();
@@ -86,12 +87,17 @@ public class Flock : MonoBehaviour
     {
         // Managing the Queue. We grab the target, set the swarmlings on it, then requeue it at the back.
         Transform target = targetList.Dequeue();
+        targetList.Enqueue(target);
+        SetNewSwarmTarget(target);
+    }
+
+    public void SetNewSwarmTarget(Transform newTarget)
+    {
+        currentTarget = newTarget;
         foreach (Flocking agent in swarm)
         {
-            agent.SetTarget(target, agent.AIAgent);
-            agent.SetState(AIState.Moving, agent.AIAgent);
+            agent.SetTarget(newTarget, agent.AIAgent);
         }
-        targetList.Enqueue(target);
     }
 
     private void GenerateSwarm()
