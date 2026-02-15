@@ -6,6 +6,7 @@ using AI;
 public class Flock : MonoBehaviour 
 {
     [Header("Flock Settings")]
+    public bool startOnAwake = false;
     public int startingFlockCount = 20;
     public GameObject flockAgentPrefab;
     public float neighborRadius = 5;
@@ -22,6 +23,19 @@ public class Flock : MonoBehaviour
     public List<Flocking> swarm = new();
     public Queue<Transform> targetList = new();
 
+    [Header("Listen Events")]
+    public GenericEvent onFlockReleased;
+
+    public void OnEnable()
+    {
+        onFlockReleased.onEventRaised.AddListener(SetNewSwarmTarget);
+    }
+
+    public void OnDisable()
+    {
+        onFlockReleased.onEventRaised.RemoveListener(SetNewSwarmTarget);
+    }
+
     public void Initialize() 
     {
         GenerateTargets();
@@ -31,7 +45,10 @@ public class Flock : MonoBehaviour
 
     private void Start()
     {
-        Initialize();
+        if (startOnAwake)
+        {
+            Initialize();
+        }
     }
 
     private void Update()
