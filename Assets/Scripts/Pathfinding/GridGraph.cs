@@ -17,6 +17,19 @@ public class GridGraph : MonoBehaviour
 
     public int Count => nodes.Count;
 
+    [Header("Listen Events")]
+    public GenericEvent onGameStart;
+
+    public void OnEnable()
+    {
+        onGameStart.onEventRaised.AddListener(RebakeGrid);
+    }
+
+    public void OnDisable()
+    {
+        onGameStart.onEventRaised.RemoveListener(RebakeGrid);
+    }
+
     [ContextMenu("Clear Grid")]
     public void Clear()
     {

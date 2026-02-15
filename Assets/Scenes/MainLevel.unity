@@ -7365,7 +7365,6 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  - component: {fileID: 330585548}
   - component: {fileID: 330585550}
   m_Layer: 0
   m_Name: Main Camera
@@ -7492,36 +7491,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!114 &330585548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: -944628639613478452, guid: a3f698d2996428946b00d2ac7bef85fd, type: 3}
-  m_NotificationBehavior: 3
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 330585545}
 --- !u!114 &330585550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7529,7 +7498,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be76e5f14cfee674cb30b491fb72b09b, type: 3}
   m_Name: 
@@ -16311,7 +16280,8 @@ MonoBehaviour:
   nodePrefab: {fileID: 0}
   generationGridColumns: 30
   generationGridRows: 30
-  generationGridCellSize: 3.5
+  generationGridCellSize: 2.5
+  onGameStart: {fileID: 11400000, guid: d999719936d9b724c874361f3d509aa1, type: 2}
   _nodeGizmoRadius: 0.5
   _edgeGizmoColor: {r: 0.2554805, g: 0.24150053, b: 0.6320754, a: 1}
 --- !u!4 &657546294
@@ -17728,7 +17698,7 @@ GameObject:
   - component: {fileID: 680619341}
   - component: {fileID: 680619340}
   - component: {fileID: 680619339}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21532,6 +21502,8 @@ GameObject:
   m_Component:
   - component: {fileID: 829194905}
   - component: {fileID: 829194906}
+  - component: {fileID: 829194907}
+  - component: {fileID: 829194908}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -21567,6 +21539,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df1078c1deb911d42a4903623098aec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  coverPrefab: {fileID: 3029344174019942844, guid: e04fddcd1d265db498322ccc1ea8791a, type: 3}
+  maxCoverCount: 12
+  currentCoverCount: 0
+  onGameStart: {fileID: 11400000, guid: d999719936d9b724c874361f3d509aa1, type: 2}
+--- !u!114 &829194907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829194904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0679654ed790cbd448ef2a37007538e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+--- !u!114 &829194908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829194904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: a3f698d2996428946b00d2ac7bef85fd, type: 3}
+  m_NotificationBehavior: 3
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 330585545}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -50708,8 +50726,8 @@ SceneRoots:
   - {fileID: 72376515}
   - {fileID: 1795316118}
   - {fileID: 895100382}
-  - {fileID: 829194905}
   - {fileID: 476551775}
+  - {fileID: 829194905}
   - {fileID: 9010730905783380818}
   - {fileID: 844203515}
   - {fileID: 622566253}

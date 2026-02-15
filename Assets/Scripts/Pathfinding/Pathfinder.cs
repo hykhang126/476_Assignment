@@ -18,34 +18,6 @@ public class Pathfinder : MonoBehaviour
     public GameObject closedPointPrefab;
     public GameObject pathPointPrefab;
 
-    private void Update()
-    {
-        // if (Input.GetKeyDown(KeyCode.Mouse0))
-        // {
-        //     if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Node")))
-        //     {
-        //         if (startNode != null && goalNode != null)
-        //         {
-        //             startNode = null;
-        //             goalNode = null;
-        //             ClearPoints();
-        //         }
-
-        //         if (startNode == null)
-        //         {
-        //             startNode = hit.collider.gameObject.GetComponent<GridGraphNode>();
-        //         }
-        //         else if (goalNode == null)
-        //         {
-        //             goalNode = hit.collider.gameObject.GetComponent<GridGraphNode>();
-
-        //             // TODO: use an admissible heuristic and pass it to the FindPath function
-        //             List<GridGraphNode> path = FindPath(startNode, goalNode, CalculateHeuristic);
-        //         }
-        //     }
-        // }
-    }
-
     public void Initialize()
     {
         if (graph == null)
