@@ -42,6 +42,13 @@ public class GridGraph : MonoBehaviour
         GenerateGrid(true);
     }
 
+    [ContextMenu("Rebake Grid")]
+    public void RebakeGrid()
+    {
+        Clear();
+        GenerateGrid(true);
+    }
+
     public void GenerateGrid(bool checkCollisions = true)
     {
         Clear();
@@ -60,7 +67,7 @@ public class GridGraph : MonoBehaviour
             {
                 if (checkCollisions)
                 {
-                    if (Physics.CheckBox(genPosition, Vector3.one / 2, Quaternion.identity, LayerMask.GetMask("Obstacle")))
+                    if (Physics.CheckBox(genPosition, Vector3.one / 2, Quaternion.identity, LayerMask.GetMask("Cover")))
                     {
                         genPosition = new Vector3(genPosition.x + generationGridCellSize, genPosition.y, genPosition.z);
                         continue;

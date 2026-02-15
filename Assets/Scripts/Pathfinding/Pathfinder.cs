@@ -4,7 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-public class Pathfinding : MonoBehaviour
+[RequireComponent(typeof(GridGraph))]
+public class Pathfinder : MonoBehaviour
 {
     public bool debug;
     [SerializeField] private GridGraph graph;
@@ -19,30 +20,84 @@ public class Pathfinding : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        // if (Input.GetKeyDown(KeyCode.Mouse0))
+        // {
+        //     if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Node")))
+        //     {
+        //         if (startNode != null && goalNode != null)
+        //         {
+        //             startNode = null;
+        //             goalNode = null;
+        //             ClearPoints();
+        //         }
+
+        //         if (startNode == null)
+        //         {
+        //             startNode = hit.collider.gameObject.GetComponent<GridGraphNode>();
+        //         }
+        //         else if (goalNode == null)
+        //         {
+        //             goalNode = hit.collider.gameObject.GetComponent<GridGraphNode>();
+
+        //             // TODO: use an admissible heuristic and pass it to the FindPath function
+        //             List<GridGraphNode> path = FindPath(startNode, goalNode, CalculateHeuristic);
+        //         }
+        //     }
+        // }
+    }
+
+    public void Initialize()
+    {
+        if (graph == null)
         {
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Node")))
+            graph = GetComponent<GridGraph>();
+        }
+        if (startNode == null)
+        {
+            startNode = graph.nodes[0];
+        }
+        if (goalNode == null)
+        {
+            goalNode = graph.nodes[^1];
+        }
+    }
+
+    void Start()
+    {
+        Initialize();
+    }
+
+    public List<GridGraphNode> GetAstarPathFromTransforms(Transform startTransform, Transform goalTransform)
+    {
+        if (FindGridNodeByTransform(startTransform, out GridGraphNode startNode, true) 
+            && FindGridNodeByTransform(goalTransform, out GridGraphNode goalNode, true))
+        {
+            return FindPath(startNode, goalNode, CalculateHeuristic);
+        }
+        else
+        {
+            Debug.LogError("Start or goal transform does not correspond to any node in the graph.");
+            return new List<GridGraphNode>();
+        }
+    }
+
+    private bool FindGridNodeByTransform(Transform target, out GridGraphNode node, bool approximatePos = true)
+    {
+        foreach (GridGraphNode n in graph.nodes)
+        {
+            if (n.transform == target)
             {
-                if (startNode != null && goalNode != null)
-                {
-                    startNode = null;
-                    goalNode = null;
-                    ClearPoints();
-                }
-
-                if (startNode == null)
-                {
-                    startNode = hit.collider.gameObject.GetComponent<GridGraphNode>();
-                }
-                else if (goalNode == null)
-                {
-                    goalNode = hit.collider.gameObject.GetComponent<GridGraphNode>();
-
-                    // TODO: use an admissible heuristic and pass it to the FindPath function
-                    List<GridGraphNode> path = FindPath(startNode, goalNode, CalculateHeuristic);
-                }
+                node = n;
+                return true;
+            }
+            else if (approximatePos && Vector3.Distance(n.transform.position, target.position) < graph.generationGridCellSize)
+            {
+                node = n;
+                return true;
             }
         }
+        node = null;
+        return false;
     }
 
     private float CalculateHeuristic(Transform start, Transform end)
@@ -64,21 +119,29 @@ public class Pathfinding : MonoBehaviour
         bool solutionFound = false;
 
         // dictionary to keep track of g(n) values (movement costs)
-        Dictionary<GridGraphNode, float> gnDict = new Dictionary<GridGraphNode, float>();
-        gnDict.Add(start, default);
+        Dictionary<GridGraphNode, float> gnDict = new()
+        {
+            { start, default }
+        };
 
         // dictionary to keep track of f(n) values (movement cost + heuristic)
-        Dictionary<GridGraphNode, float> fnDict = new Dictionary<GridGraphNode, float>();
-        fnDict.Add(start, heuristic(start.transform, goal.transform) + gnDict[start]);
+        Dictionary<GridGraphNode, float> fnDict = new()
+        {
+            { start, heuristic(start.transform, goal.transform) + gnDict[start] }
+        };
 
         // dictionary to keep track of our path (came_from)
-        Dictionary<GridGraphNode, GridGraphNode> pathDict = new Dictionary<GridGraphNode, GridGraphNode>();
-        pathDict.Add(start, null);
+        Dictionary<GridGraphNode, GridGraphNode> pathDict = new()
+        {
+            { start, null }
+        };
 
-        List<GridGraphNode> openList = new List<GridGraphNode>();
-        openList.Add(start);
+        List<GridGraphNode> openList = new()
+        {
+            start
+        };
 
-        HashSet<GridGraphNode> closedSet = new HashSet<GridGraphNode>();
+        HashSet<GridGraphNode> closedSet = new();
 
         int debugIteration = 0;
 
@@ -137,8 +200,6 @@ public class Pathfinding : MonoBehaviour
 
                 pathDict[n] = current;
 
-                Debug.Log("Add" + n.name + " to closed list");
-
                 FakePQListInsert(openList, fnDict, n);
             }
             debugIteration++;
@@ -168,18 +229,18 @@ public class Pathfinding : MonoBehaviour
             path.Reverse();
         }
 
-        if (debug)
+        if (debug && openPointPrefab != null && closedPointPrefab != null && pathPointPrefab != null)
         {
             ClearPoints();
 
-            List<Transform> openListPoints = new List<Transform>();
+            List<Transform> openListPoints = new();
             foreach (GridGraphNode node in openList)
             {
                 openListPoints.Add(node.transform);
             }
             SpawnPoints(openListPoints, openPointPrefab, Color.magenta);
 
-            List<Transform> closedListPoints = new List<Transform>();
+            List<Transform> closedListPoints = new();
             foreach (GridGraphNode node in closedSet)
             {
                 if (solutionFound && !path.Contains(node))
@@ -189,7 +250,7 @@ public class Pathfinding : MonoBehaviour
 
             if (solutionFound)
             {
-                List<Transform> pathPoints = new List<Transform>();
+                List<Transform> pathPoints = new();
                 foreach (GridGraphNode node in path)
                 {
                     pathPoints.Add(node.transform);

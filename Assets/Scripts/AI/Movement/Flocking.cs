@@ -2,6 +2,7 @@
 
 using AI;
 using Utilities;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(AIAgent))]
 public class Flocking : AIMovement 
@@ -127,6 +128,10 @@ public class Flocking : AIMovement
         else
         {
             this.agent = GetComponent<AIAgent>();
+        }
+        if (agent != null)
+        {
+            agent.Initialize();
         }
     }
 

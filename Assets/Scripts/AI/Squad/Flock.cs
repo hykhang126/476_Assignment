@@ -5,8 +5,6 @@ using AI;
 
 public class Flock : MonoBehaviour 
 {
-    public bool debug;
-
     [Header("Flock Settings")]
     public int startingFlockCount = 20;
     public GameObject flockAgentPrefab;
@@ -34,35 +32,6 @@ public class Flock : MonoBehaviour
 
     private void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.Space))
-        //     SetNewSwarmTarget();
-
-        // if (Input.GetKey(KeyCode.Q))
-        //     cohesionFactor += Time.deltaTime;
-        // else if (Input.GetKey(KeyCode.A))
-        //     cohesionFactor -= Time.deltaTime;
-
-        // if (Input.GetKey(KeyCode.W))
-        //     avoidanceFactor += Time.deltaTime;
-        // else if (Input.GetKey(KeyCode.S))
-        //     avoidanceFactor -= Time.deltaTime;
-
-        // if (Input.GetKey(KeyCode.E))
-        //     seekSpeed += Time.deltaTime;
-        // else if (Input.GetKey(KeyCode.D))
-        //     seekSpeed -= Time.deltaTime;
-
-        // // synchronize swarm settings across all agents
-        // foreach (FlockAgent agent in swarm)
-        // {
-        //     agent.debug = debug;
-        //     agent.neighborRadius = neighborRadius;
-        //     agent.avoidanceRadius = avoidanceRadius;
-        //     agent.cohesionFactor = cohesionFactor;
-        //     agent.avoidanceFactor = avoidanceFactor;
-        //     agent.seekSpeed = seekSpeed;
-        // }
-
         // Check if the target has been reached by the swarm (using the first agent as a reference)
         CheckIfTargetReached();
     }
@@ -143,8 +112,7 @@ public class Flock : MonoBehaviour
         // Check the distance for every agent to the target, and if they're all within a certain threshold, we can say the target has been reached.
         foreach (Flocking agent in swarm)
         {
-            AIAgent aiAgent = agent.GetComponent<AIAgent>();
-            if (Vector3.Distance(agent.transform.position, aiAgent.TargetPosition) > targetReachThreshold)
+            if (Vector3.Distance(agent.transform.position, currentTarget.position) > targetReachThreshold)
                 return;
         }
         SetNewSwarmTarget();
