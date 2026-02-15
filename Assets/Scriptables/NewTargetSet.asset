@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e48de36b550f09943bf7c655e7f7da4e, type: 3}
-  m_Name: Squad 1 spawn
+  m_Name: NewTargetSet
   m_EditorClassIdentifier: Assembly-CSharp::GenericEvent
   onEventRaised:
     m_PersistentCalls:

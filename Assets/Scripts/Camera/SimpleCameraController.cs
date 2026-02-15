@@ -291,4 +291,14 @@ namespace UnityTemplateProjects
 
     }
 
+    [RequireComponent(typeof(PlayerInput))]
+    public class InputManager: MonoBehaviour
+    {
+        PlayerInput playerInput;
+
+        void Start()
+        {
+            playerInput = GetComponent<PlayerInput>();
+        }
+    }
 }

@@ -215,7 +215,10 @@ public class Pathfinder : MonoBehaviour
             // TODO
             // create the path by traversing the previous nodes in the pathDict
             // starting at the goal and finishing at the start
-            path = new List<GridGraphNode>();
+            path = new List<GridGraphNode>
+            {
+                goal
+            };
             GridGraphNode current = goal;
 
             while (current != start)

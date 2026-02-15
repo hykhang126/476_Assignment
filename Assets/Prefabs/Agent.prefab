@@ -209,6 +209,7 @@ GameObject:
   - component: {fileID: 6366788726595939951}
   - component: {fileID: 8063132861002853415}
   - component: {fileID: 7423735015278164016}
+  - component: {fileID: 9184729643853253392}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -224,7 +225,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3331031422211063921}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -236,7 +237,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.5}
+  m_AnchoredPosition: {x: 0, y: 2.25}
   m_SizeDelta: {x: 2.5, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &6366788726595939951
@@ -302,6 +303,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &9184729643853253392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3331031422211063921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e5a580d40a76c54586eb26a29baf8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AlignToCamera
 --- !u!1 &4506732510711340637
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,12 +701,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3307eea0187a26408f4a5b295b0d742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI.AIAgent
-  maxSpeed: 2
+  maxSpeed: 3
   lockY: 1
   behaviorType: 1
   health: 100
-  damageAmount: 10
-  inDangerSpeedMod: 2
+  damageAmount: 5
+  inDangerSpeedMod: 1.5
   inDanderRayRangeMod: 5
   raylength: 2
   rayAngle: 20
@@ -711,6 +724,8 @@ MonoBehaviour:
   agentDiedEvent:
     m_PersistentCalls:
       m_Calls: []
+  onPathGenerated: {fileID: 11400000, guid: 84dba8934e772fe4795f7d1041eb14c4, type: 2}
+  onNewTargetSet: {fileID: 11400000, guid: ec5369694f987a54e83c55a2ad511eb4, type: 2}
 --- !u!114 &2296504425818373481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -726,6 +741,7 @@ MonoBehaviour:
   degreeOfArrival: 2
   currentTargetNode: {fileID: 0}
   targetNodeIndex: 0
+  onPathGenerated: {fileID: 11400000, guid: 84dba8934e772fe4795f7d1041eb14c4, type: 2}
 --- !u!114 &5212396709024917363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,10 +754,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 415a7ba6845c3074fa75c86d6947b5a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Utilities.VisualizeNavigation
-  visualizeNavigationRays: 1
+  visualizeNavigationRays: 0
   visualizeVelocity: 1
   visualizeTarget: 1
-  visualizeAvoidance: 1
+  visualizeAvoidance: 0
   grabFromAIAgent: 1
   visualizeCoverSphere: 1
 --- !u!114 &5453484574790828178
@@ -839,6 +855,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  onSetFlockTarget: {fileID: 11400000, guid: ec5369694f987a54e83c55a2ad511eb4, type: 2}
 --- !u!114 &328498974363990337
 MonoBehaviour:
   m_ObjectHideFlags: 0

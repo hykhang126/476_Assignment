@@ -22,12 +22,16 @@ public class Flock : MonoBehaviour
     public List<Flocking> swarm = new();
     public Queue<Transform> targetList = new();
 
-    private void Start()
+    public void Initialize() 
     {
         GenerateTargets();
-
         GenerateSwarm();
         SetNewSwarmTarget();
+    }
+
+    private void Start()
+    {
+        Initialize();
     }
 
     private void Update()

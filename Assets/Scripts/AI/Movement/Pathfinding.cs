@@ -15,11 +15,23 @@ namespace AI
         [SerializeField] private GridGraphNode currentTargetNode;
         [SerializeField] private int targetNodeIndex = 0;
 
+        [Header("Listen Events")]
+        public GenericEvent onPathGenerated;
+
         public void Initialize()
         {
             agent = gameObject.GetComponent<AIAgent>();
 
             targetNodeIndex = 0;
+
+            onPathGenerated.onEventRaised.AddListener(() =>
+            {
+                targetNodeIndex = 0;
+                if (agent.currentPath != null && agent.currentPath.Count > 0)
+                {
+                    currentTargetNode = agent.currentPath[targetNodeIndex];
+                }
+            });
         }
 
         void Start()
@@ -51,6 +63,12 @@ namespace AI
 
             if (CheckifAroundDestination(agent.transform.position, currentTargetNode.transform.position, degreeOfArrival))
             {
+                // if we at the final target, stop tracking and return
+                if (targetNodeIndex >= agent.currentPath.Count - 1)
+                {
+                    return;
+                }
+
                 // get the next target from the path. Don't go over the last target of the path.
                 if (agent.currentPath.Count > 0)
                 {
@@ -62,7 +80,7 @@ namespace AI
                 }
             }
 
-            if (agent.currentState == AIState.Moving)
+            if (agent.currentState == AIState.Moving || agent.currentState == AIState.SeekCover)
             {
                 agent.TrackTarget(currentTargetNode.transform);
             }

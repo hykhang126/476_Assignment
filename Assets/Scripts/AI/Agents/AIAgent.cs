@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework.Interfaces;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEngine.XR;
 
 namespace AI
 {
@@ -43,12 +45,17 @@ namespace AI
 
         [Header("DEBUG: NO ASSIGNMENT")]
         public AIState currentState;
-        private Cover currentCover;
+        public Cover currentCover;
+        public Transform currentCoverTarget;
         public Vector3 avoidanceDirection;
         public List<GridGraphNode> currentPath;
         
-        [Header("Events")]
+        [Header("Broadcast Events")]
         public UnityEvent<AIAgent> agentDiedEvent;
+        public GenericEvent onPathGenerated;
+
+        [Header("Listen Events")]
+        public GenericEvent onNewTargetSet;
 
         #region Properties
         public Vector3 TargetPosition
@@ -66,8 +73,7 @@ namespace AI
                 Vector3 v = Vector3.zero;
                 if (trackedTarget != null)
                 {
-                    AIAgent targetAgent = trackedTarget.GetComponent<AIAgent>();
-                    if (targetAgent != null)
+                    if (trackedTarget.TryGetComponent<AIAgent>(out var targetAgent))
                         v = targetAgent.Velocity;
                 }
 
@@ -103,7 +109,7 @@ namespace AI
 
         public void Heal(float amount)
         {
-            health += amount;
+            health += amount * 2f;
             health = Mathf.Clamp(health, 0f, 100f);
         }
 
@@ -124,15 +130,18 @@ namespace AI
                     usePathFinding = false;
                 }
             }
-            if (usePathFinding)
-            {
-                GeneratePathToTarget(flockTarget);
-            }
+
+            onNewTargetSet.onEventRaised.AddListener(GeneratePathToTarget);
         }
 
-        private void Awake()
+        private void Start()
         {
             Initialize();
+
+            if (usePathFinding && pathfinder != null)
+            {
+                GeneratePathToTarget();
+            }
         }
 
         private void Update()
@@ -143,7 +152,7 @@ namespace AI
 
             if (currentState == AIState.Moving)
             {
-                HandleCollisionAvoidance();
+                // HandleCollisionAvoidance();
             }
             else if (currentState == AIState.InDanger)
             {
@@ -194,11 +203,17 @@ namespace AI
 
         #region AI Pathfinding
 
+        private void GeneratePathToTarget()
+        {
+            GeneratePathToTarget(flockTarget);
+        }
+
         private void GeneratePathToTarget(Transform target)
         {
             if (usePathFinding && pathfinder != null && target != null)
             {
                 currentPath = pathfinder.GetAstarPathFromTransforms(transform, target);
+                onPathGenerated.Invoke();
             }
         }
 
@@ -329,8 +344,19 @@ namespace AI
 
         private void ArriveCoverTarget()
         {
-            // If we are close to the target, stops and wait for squad command
+            // If we are close to the cover, stops and wait for squad command
             float arriveDistance = 1f;
+
+            // Exception for pathfinding
+            if (usePathFinding && Vector3.Distance(currentCover.transform.position, TargetPosition) > arriveDistance * 5f) // MAGIC NUMBER
+            {
+                return;
+            }
+            else if (usePathFinding && Vector3.Distance(transform.position, currentCoverTarget.position) < arriveDistance * 5f)
+            {
+                TrackTarget(currentCoverTarget);
+            }
+
             if (Vector3.Distance(transform.position, TargetPosition) <= arriveDistance)
             {
                 Velocity = Vector3.zero;
@@ -344,6 +370,7 @@ namespace AI
             if (health >= 100f)
             {
                 SetState(AIState.Moving);
+                GeneratePathToTarget();
             }
         }
 
@@ -409,6 +436,7 @@ namespace AI
             if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform, out currentCover) 
                 && currentState == AIState.InDanger)
             {
+                currentCoverTarget = coverTransform;
                 SeekCover(coverTransform);
                 return;
             }
@@ -439,6 +467,7 @@ namespace AI
                         if (cover.TryOccupyCover(this, out Transform coverTransform))
                         {
                             currentCover = cover;
+                            currentCoverTarget = coverTransform;
                             SeekCover(coverTransform);
                             return;
                         }
@@ -479,6 +508,7 @@ namespace AI
                     Cover cover = rightHit.collider.GetComponent<Cover>();
                     if (cover != null && cover.IsCoverAvailable())
                     {
+                        currentCover = cover;
                         return cover.TryOccupyCover(this, out coverTransform);
                     }
                 }
@@ -489,8 +519,15 @@ namespace AI
 
         public void SeekCover(Transform coverTransform)
         {
-            TrackTarget(coverTransform);
             SetState(AIState.SeekCover);
+            if (usePathFinding && pathfinder != null)
+            {
+                GeneratePathToTarget(coverTransform);
+            }
+            else
+            {
+                TrackTarget(coverTransform);
+            }
         }
         #endregion
     }

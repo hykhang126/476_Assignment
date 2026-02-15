@@ -3,6 +3,7 @@
 using AI;
 using Utilities;
 using UnityEngine.AI;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(AIAgent))]
 public class Flocking : AIMovement 
@@ -19,6 +20,9 @@ public class Flocking : AIMovement
     private AIAgent agent;
     public AIAgent AIAgent => agent;
     [SerializeField] private Collider[] neighborBuffer = new Collider[50];
+
+    [Header("Broadcast Events")]
+    public GenericEvent onSetFlockTarget;
 	
     private void Awake()
     {
@@ -129,9 +133,9 @@ public class Flocking : AIMovement
         {
             this.agent = GetComponent<AIAgent>();
         }
-        if (agent != null)
+        if (this.agent != null)
         {
-            agent.Initialize();
+            this.agent.Initialize();
         }
     }
 
@@ -139,5 +143,6 @@ public class Flocking : AIMovement
     {
         // TODO : set the target for this agent to seek towards
         agent.flockTarget = target;
+        onSetFlockTarget.Invoke();
     }
 }
