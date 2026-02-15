@@ -20244,6 +20244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flock
   startOnAwake: 0
+  hasInitialized: 0
   startingFlockCount: 6
   flockAgentPrefab: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
   neighborRadius: 5
@@ -40268,6 +40269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flock
   startOnAwake: 0
+  hasInitialized: 0
   startingFlockCount: 6
   flockAgentPrefab: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
   neighborRadius: 5
@@ -51187,6 +51189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flock
   startOnAwake: 0
+  hasInitialized: 0
   startingFlockCount: 6
   flockAgentPrefab: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
   neighborRadius: 5
@@ -58959,6 +58962,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df1078c1deb911d42a4903623098aec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  hasGameStarted: 0
   coverPrefab: {fileID: 3029344174019942844, guid: e04fddcd1d265db498322ccc1ea8791a, type: 3}
   maxCoverCount: 12
   currentCoverCount: 0
@@ -73561,6 +73565,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flock
   startOnAwake: 0
+  hasInitialized: 0
   startingFlockCount: 6
   flockAgentPrefab: {fileID: 6428420551053372938, guid: cc03ca4c0ae355f4190be5c472307fa0, type: 3}
   neighborRadius: 5

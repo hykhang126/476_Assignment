@@ -459,7 +459,7 @@ namespace AI
                 Vector3.Distance(rayOrigin, a.transform.position).CompareTo(Vector3.Distance(rayOrigin, b.transform.position)));
             foreach (Collider hitCollider in hitColliders)
             {
-                if (hitCollider.CompareTag("Cover"))
+                if (hitCollider.CompareTag("Cover") || hitCollider.CompareTag("PlayerCover"))
                 {
                     Cover cover = hitCollider.GetComponent<Cover>();
                     if (cover != null && cover.IsCoverAvailable())

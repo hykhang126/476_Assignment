@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,8 @@ public class GameManager : MonoBehaviour
 {
     // SINGLETON PATTERN
     public static GameManager Instance;
+
+    public bool hasGameStarted = false;
 
     [Header("Cover Settings")]
     public GameObject coverPrefab;
@@ -48,7 +51,9 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        if (hasGameStarted) return;
         Debug.Log("Game Started!");
+        hasGameStarted = true;
         onGameStart.Invoke();
         StartFlockSpawner();
     }
@@ -89,16 +94,22 @@ public class GameManager : MonoBehaviour
 
     private System.Collections.IEnumerator ReleaseFlockCoroutine(float delayBetweenFlocks = 8f)
     {
-        yield return new WaitForSeconds(delayBetweenFlocks);
+        flock1.enabled = true;
         flock1.Initialize();
         onFlockRelease.Invoke();
+
         yield return new WaitForSeconds(delayBetweenFlocks);
+        flock2.enabled = true;
         flock2.Initialize();
         onFlockRelease.Invoke();
+
         yield return new WaitForSeconds(delayBetweenFlocks);
+        flock3.enabled = true;
         flock3.Initialize();
         onFlockRelease.Invoke();
+
         yield return new WaitForSeconds(delayBetweenFlocks);
+        flock4.enabled = true;
         flock4.Initialize();
         onFlockRelease.Invoke();
 

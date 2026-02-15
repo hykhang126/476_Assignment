@@ -7,6 +7,7 @@ public class Flock : MonoBehaviour
 {
     [Header("Flock Settings")]
     public bool startOnAwake = false;
+    public bool hasInitialized = false;
     public int startingFlockCount = 20;
     public GameObject flockAgentPrefab;
     public float neighborRadius = 5;
@@ -41,6 +42,7 @@ public class Flock : MonoBehaviour
         GenerateTargets();
         GenerateSwarm();
         SetNewSwarmTarget();
+        hasInitialized = true;
     }
 
     private void Start()
@@ -75,6 +77,7 @@ public class Flock : MonoBehaviour
     [ContextMenu("Set New Swarm Target")]
     public void SetNewSwarmTarget()
     {
+        if (!hasInitialized) return;
         // Managing the Queue. We grab the target, set the swarmlings on it, then requeue it at the back.
         Transform target = targetList.Dequeue();
         targetList.Enqueue(target);
