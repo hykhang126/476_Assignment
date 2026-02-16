@@ -10,7 +10,7 @@ using System.Collections.Generic;
 [ExecuteInEditMode]
 public class GridGraphNode : MonoBehaviour
 {
-    [SerializeField] public List<GridGraphNode> adjacencyList = new List<GridGraphNode>();
+    [SerializeField] public List<GridGraphNode> adjacencyList = new();
 
     private GridGraph graph;
     private GridGraph Graph

@@ -61,6 +61,8 @@ public class Flock : MonoBehaviour
 
     private void Update()
     {
+        if (swarm.Count == 0 || !hasInitialized) return;
+
         // Check if the target has been reached by the swarm (using the first agent as a reference)
         CheckIfTargetReached();
     }
@@ -82,18 +84,17 @@ public class Flock : MonoBehaviour
     [ContextMenu("Set New Swarm Target")]
     public void SetNewSwarmTarget()
     {
-        if (!hasInitialized || targetList.Count <= 1) return;
+        if (!hasInitialized || targetList.Count < 1) return;
         Transform target = targetList.Dequeue();
         SetNewSwarmTarget(target);
     }
 
-    public void SetNewSwarmTarget(Transform newTarget)
+    private void SetNewSwarmTarget(Transform newTarget)
     {
-        if (!hasInitialized) return;
         currentTarget = newTarget;
         foreach (Flocking agent in swarm)
         {
-            agent.SetTarget(newTarget, agent.AIAgent);
+            agent.SetTarget(newTarget);
         }
     }
 

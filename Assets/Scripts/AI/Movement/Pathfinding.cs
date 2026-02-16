@@ -6,7 +6,7 @@ namespace AI
     public class Pathfinding : MonoBehaviour
     {
         private AIAgent agent;
-        public float degreeOfArrival = 2f;
+        public float degreeOfArrival = 1.45f;
 
         [Header("DEBUG:")]
         [SerializeField] private GridGraphNode currentTargetNode;

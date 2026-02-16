@@ -1,8 +1,5 @@
 using UnityEngine;
-
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 [RequireComponent(typeof(GridGraph))]
 public class Pathfinder : MonoBehaviour
@@ -72,6 +69,8 @@ public class Pathfinder : MonoBehaviour
 
     private bool FindGridNodeByTransform(Transform target, out GridGraphNode node, bool approximatePos = true)
     {
+        // float approximateRadius = graph.generationGridCellSize / 2f * Mathf.Sqrt(2);
+        float approximateRadius = graph.generationGridCellSize / 2f * 2f;
         foreach (GridGraphNode n in graph.nodes)
         {
             if (n.transform == target)
@@ -79,7 +78,7 @@ public class Pathfinder : MonoBehaviour
                 node = n;
                 return true;
             }
-            else if (approximatePos && Vector3.Distance(n.transform.position, target.position) < graph.generationGridCellSize)
+            else if (approximatePos && Vector3.Distance(n.transform.position, target.position) < approximateRadius)
             {
                 node = n;
                 return true;
@@ -102,7 +101,7 @@ public class Pathfinder : MonoBehaviour
         if (graph == null) return new List<GridGraphNode>();
 
         // if no heuristic is provided then set heuristic = 0
-        if (heuristic == null) heuristic = (Transform s, Transform e) => 0;
+        heuristic ??= (s, e) => 0;
 
         List<GridGraphNode> path = null;
         bool solutionFound = false;
@@ -132,9 +131,7 @@ public class Pathfinder : MonoBehaviour
 
         HashSet<GridGraphNode> closedSet = new();
 
-        int debugIteration = 0;
-
-        while (openList.Count > 0 && debugIteration < 1000)
+        while (openList.Count > 0)
         {
             // mimic priority queue and remove from the back of the open list (lowest fn value)
             GridGraphNode current = openList[openList.Count - 1];
@@ -173,25 +170,34 @@ public class Pathfinder : MonoBehaviour
                 float movement_cost = 1;
 
                 // TODO
-                if (closedSet.Contains(n)) continue;
 
                 // find gNeighbor (g_next)
                 // ...
-                float g_neighbor = gnDict[current] + movement_cost;
-                gnDict[n] = g_neighbor;
 
                 // check if you need to update tables, calculate fn, and update open_list using FakePQListInsert() function
                 // and do so if necessary
                 // ...
 
-                float fn_current = g_neighbor + heuristic(n.transform, goal.transform);
-                fnDict[n] = fn_current;
+                float gNeighbor = gnDict[current] + movement_cost;
 
-                pathDict[n] = current;
+                // If new node OR we found a cheaper path -> update
+                if (!gnDict.ContainsKey(n) || gNeighbor < gnDict[n])
+                {
+                    gnDict[n] = gNeighbor;
+                    pathDict[n] = current;
 
-                FakePQListInsert(openList, fnDict, n);
+                    // f(n) = g(n) + h(n)
+                    fnDict[n] = gNeighbor + heuristic(n.transform, goal.transform);
+
+                    // Update openList priority (Fake priority queue)
+                    if (openList.Contains(n))
+                        openList.Remove(n);
+
+                    FakePQListInsert(openList, fnDict, n);
+                }
+
+
             }
-            debugIteration++;
         }
 
         // if the closed list contains the goal node then we have found a solution
@@ -203,26 +209,39 @@ public class Pathfinder : MonoBehaviour
             // TODO
             // create the path by traversing the previous nodes in the pathDict
             // starting at the goal and finishing at the start
-            path = new List<GridGraphNode>
-            {
-                goal
-            };
-            GridGraphNode current = goal;
+            path = new List<GridGraphNode>();
 
-            while (current != start)
+            // ...
+
+            // reverse the path since we started adding nodes from the goal 
+
+
+            GridGraphNode current = goal;
+            path.Add(current);
+
+            // Traverse until start (or until we can't)
+            while (current != start && pathDict.ContainsKey(current) && pathDict[current] != null)
             {
                 current = pathDict[current];
                 path.Add(current);
             }
-
-
-            // reverse the path since we started adding nodes from the goal 
             path.Reverse();
         }
 
-        if (debug && openPointPrefab != null && closedPointPrefab != null && pathPointPrefab != null)
+        VisualizeDebug(debug, solutionFound, openList, closedSet, path);
+
+        return path;
+    }
+
+    #endregion
+
+    #region Debug
+
+    private void VisualizeDebug(bool debug, bool solutionFound, List<GridGraphNode> openList, HashSet<GridGraphNode> closedSet, List<GridGraphNode> path)
+    {
+        if (debug)
         {
-            ClearPoints();
+            // ClearPoints();
 
             List<Transform> openListPoints = new();
             foreach (GridGraphNode node in openList)
@@ -249,13 +268,7 @@ public class Pathfinder : MonoBehaviour
                 SpawnPoints(pathPoints, pathPointPrefab, Color.green);
             }
         }
-
-        return path;
     }
-
-    #endregion
-
-    #region Debug
 
     private void SpawnPoints(List<Transform> points, GameObject prefab, Color color)
     {
@@ -273,7 +286,8 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
-    private void ClearPoints()
+    [ContextMenu("Clear Debug Points")]
+    public void ClearPoints()
     {
         foreach (GridGraphNode node in graph.nodes)
         {

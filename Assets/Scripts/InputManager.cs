@@ -20,16 +20,19 @@ public class InputManager: MonoBehaviour
 
     void StartGame(InputAction.CallbackContext context)
     {
+        if(!context.performed) return;
         GameManager.Instance.StartGame();
     }
 
     void PlaceCover(InputAction.CallbackContext context)
     {
+        if(!context.performed) return;
         GameManager.Instance.PlaceCover();
     }
 
     void RemoveCover(InputAction.CallbackContext context)
     {
+        if(!context.performed) return;
         GameManager.Instance.RemoveCover();
     }
 }

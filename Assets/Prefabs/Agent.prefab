@@ -664,7 +664,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!136 &7385449070287376216
 CapsuleCollider:
@@ -706,7 +706,7 @@ MonoBehaviour:
   behaviorType: 1
   health: 100
   damageAmount: 5
-  inDangerSpeedMod: 2
+  inDangerSpeedMod: 1.5
   inDanderRayRangeMod: 5
   raylength: 2
   rayAngle: 20
@@ -723,11 +723,11 @@ MonoBehaviour:
   currentCoverTarget: {fileID: 0}
   avoidanceDirection: {x: 0, y: 0, z: 0}
   currentPath: []
+  hasInit: 0
   agentDiedEvent:
     m_PersistentCalls:
       m_Calls: []
   onPathGenerated: {fileID: 11400000, guid: 84dba8934e772fe4795f7d1041eb14c4, type: 2}
-  onNewTargetSet: {fileID: 11400000, guid: ec5369694f987a54e83c55a2ad511eb4, type: 2}
 --- !u!114 &2296504425818373481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -740,7 +740,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26620818701a83348877df7ae827749e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI.Pathfinding
-  degreeOfArrival: 2
+  degreeOfArrival: 1.45
   currentTargetNode: {fileID: 0}
   targetNodeIndex: 0
   onPathGenerated: {fileID: 11400000, guid: 84dba8934e772fe4795f7d1041eb14c4, type: 2}
@@ -857,7 +857,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  onSetFlockTarget: {fileID: 11400000, guid: ec5369694f987a54e83c55a2ad511eb4, type: 2}
 --- !u!114 &328498974363990337
 MonoBehaviour:
   m_ObjectHideFlags: 0

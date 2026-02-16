@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using AI;
 
 public class GameManager : MonoBehaviour
 {
@@ -144,7 +145,10 @@ public class GameManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             IncreasePlayerPoints(10);
-            Destroy(other.gameObject);
+            if (other.TryGetComponent<AIAgent>(out var agent))
+            {
+                agent.agentDiedEvent.Invoke(agent);
+            }
         }
     }
 }

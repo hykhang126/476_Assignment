@@ -32,7 +32,7 @@ namespace AI
         public float inDanderRayRangeMod = 5f;
 
         [Header("Collsion Avoidance Settings")]
-        public float raylength = 5f;
+        public float raylength = 2f;
         public float rayAngle = 15f;
         public LayerMask obstacleLayerMask;
         public float avoidanceForce = 20f;
@@ -49,19 +49,21 @@ namespace AI
         public Transform currentCoverTarget;
         public Vector3 avoidanceDirection;
         public List<GridGraphNode> currentPath;
+        public bool hasInit = false;
         
         [Header("Broadcast Events")]
         public UnityEvent<AIAgent> agentDiedEvent;
         public GenericEvent onPathGenerated;
 
-        [Header("Listen Events")]
-        public GenericEvent onNewTargetSet;
+        public Vector3 Velocity { get; set; }
+        
+        #region AI Target
 
-        #region Properties
         public Vector3 TargetPosition
         {
             get => trackedTarget != null ? trackedTarget.position : transform.position;
         }
+
         public Vector3 TargetForward
         {
             get => trackedTarget != null ? trackedTarget.forward : Vector3.forward;
@@ -91,28 +93,6 @@ namespace AI
             trackedTarget = null;
         }
 
-        public Vector3 Velocity { get; set; }
-
-        public void TakeDamage(float damage)
-        {
-            health -= damage;
-            if (health <= 0f)
-            {
-                if (currentCover != null)
-                {
-                    currentCover.RemoveCoverOccupant(this);
-                    currentCover = null;
-                }
-                agentDiedEvent.Invoke(this);
-            }
-        }
-
-        public void Heal(float amount)
-        {
-            health += amount * 2f;
-            health = Mathf.Clamp(health, 0f, 100f);
-        }
-
         #endregion
 
         #region Unity
@@ -131,11 +111,12 @@ namespace AI
                 }
             }
 
-            onNewTargetSet.onEventRaised.AddListener(GeneratePathToTarget);
+            hasInit = true;
         }
 
         private void Start()
         {
+            if (hasInit) return;
             Initialize();
 
             if (usePathFinding && pathfinder != null)
@@ -146,64 +127,35 @@ namespace AI
 
         private void Update()
         {
-            HandleTargetTracking();
-
             HandleMovement();
 
             if (currentState == AIState.Moving)
             {
                 // HandleCollisionAvoidance();
             }
-            else if (currentState == AIState.InDanger)
+            
+            if (currentState == AIState.InDanger)
             {
                 HandleFindCoverSphere();
             }
 
-            if (currentState == AIState.SeekCover) 
+            if (currentState == AIState.SeekCover)
+            {
                 ArriveCoverTarget();
+            }
             
             if (currentState == AIState.InCover)
+            {    
                 WaitToMove();
-
-            FixOrientation();
+            }
 
             HealthUpdate();
-
-            // animator.SetBool("walking", Velocity.magnitude > 0);
-            // animator.SetBool("running", Velocity.magnitude > maxSpeed/2);
         }
-        #endregion
-
-        #region AI Target
-        private void HandleTargetTracking()
-        {
-            switch (currentState)
-            {
-            case AIState.Moving:
-                // if (flockTarget != null)
-                //     TrackTarget(flockTarget);
-                break;
-            
-            case AIState.InDanger:
-            case AIState.SeekCover:
-                break;
-            
-            case AIState.InCover:
-                UnTrackTarget();
-                break;
-            
-            default:
-                if (trackedTarget != null)
-                    TrackTarget(trackedTarget);
-                break;
-            }
-        }
-
         #endregion
 
         #region AI Pathfinding
 
-        private void GeneratePathToTarget()
+        public void GeneratePathToTarget()
         {
             GeneratePathToTarget(flockTarget);
         }
@@ -246,6 +198,10 @@ namespace AI
             {
                 speedMod = inDangerSpeedMod;
             }
+            else if (currentState == AIState.InCover)
+            {
+                speedMod = 0f;
+            }
             transform.position += speedMod * Time.deltaTime * Velocity;
         }
         private void GetKinematicAvg(out Vector3 kinematicAvg, out Quaternion rotation)
@@ -287,27 +243,10 @@ namespace AI
             }
         }
 
-        private void FixOrientation()
-        {
-            if (lockY)
-            {
-                Vector3 pos = transform.position;
-                pos.y = 0f; // MAGIC NUMBER
-                transform.position = pos;
-            }
-
-            // Set the agent xz rotation to 0
-            transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
-        }
         #endregion
 
         #region AI State
         public void SetState(AIState newState)
-        {
-            HandleOnStateChange(newState);
-        }
-
-        private void HandleOnStateChange(AIState newState)
         {
             if (newState == currentState)
                 return;
@@ -341,18 +280,40 @@ namespace AI
                 }
             }
         }
+        
+        public void TakeDamage(float damage)
+        {
+            health -= damage;
+            if (health <= 0f)
+            {
+                if (currentCover != null)
+                {
+                    currentCover.RemoveCoverOccupant(this);
+                    currentCover = null;
+                }
+                agentDiedEvent.Invoke(this);
+            }
+        }
+
+        public void Heal(float amount)
+        {
+            health += amount * 2f;
+            health = Mathf.Clamp(health, 0f, 100f);
+        }
 
         private void ArriveCoverTarget()
         {
             // If we are close to the cover, stops and wait for squad command
-            float arriveDistance = 1f;
+            float arriveDistance = 0.25f;
 
-            // Exception for pathfinding
-            if (usePathFinding && Vector3.Distance(currentCover.transform.position, TargetPosition) > arriveDistance * 5f) // MAGIC NUMBER
+            // Make sure agent is not behind the cover target. If so, return
+            Vector3 toCoverTarget = currentCoverTarget.position - transform.position;
+            Physics.Raycast(transform.position + Vector3.up * 0.1f, toCoverTarget.normalized, out RaycastHit hit, toCoverTarget.magnitude, LayerMask.GetMask("Cover"));
+            if (hit.collider != null)
             {
                 return;
             }
-            else if (usePathFinding && Vector3.Distance(transform.position, currentCoverTarget.position) < arriveDistance * 5f)
+            else if (toCoverTarget.magnitude < 2f)
             {
                 TrackTarget(currentCoverTarget);
             }
@@ -366,6 +327,7 @@ namespace AI
 
         private void WaitToMove()
         {
+            UnTrackTarget();
             // Stay in cover until health is fully restored, then switch to moving state
             if (health >= 100f)
             {
@@ -418,30 +380,6 @@ namespace AI
 
         #region AI Cover Seeking
 
-        public void HandleFindCover()
-        {
-            float coverRayLengthMod = 1f;
-            float rayLengthMod = (currentState == AIState.InDanger) ? inDanderRayRangeMod : 1f;
-
-            Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
-            Vector3 rayDirection = coverRayLengthMod * raylength * rayLengthMod * transform.forward;
-            Vector3 leftRayDirection = Quaternion.Euler(0, -rayAngle, 0) * rayDirection;
-            Vector3 rightRayDirection = Quaternion.Euler(0, rayAngle, 0) * rayDirection;
-
-
-            bool leftRayHit = Physics.Raycast(rayOrigin, leftRayDirection, out RaycastHit leftHit, raylength, obstacleLayerMask);
-            bool rightRayHit = Physics.Raycast(rayOrigin, rightRayDirection, out RaycastHit rightHit, raylength, obstacleLayerMask);
-
-            // if ray hits a cover, do cover occupy logic. Else apply avoidance force
-            if (CoverCollision(leftRayHit, leftHit, rightRayHit, rightHit, out Transform coverTransform, out currentCover) 
-                && currentState == AIState.InDanger)
-            {
-                currentCoverTarget = coverTransform;
-                SeekCover(coverTransform);
-                return;
-            }
-        }
-
         public void HandleFindCoverSphere()
         {
             Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
@@ -474,47 +412,6 @@ namespace AI
                     }
                 }
             }
-        }
-
-        private bool CoverCollision(bool leftRayHit, RaycastHit leftHit, bool rightRayHit, RaycastHit rightHit, 
-            out Transform coverTransform, out Cover currentCover)
-        {
-            coverTransform = null;
-            currentCover = null;
-
-            if (leftRayHit)
-            {
-                // Debug.Log("Left ray hit: " + leftHit.collider.name);
-                // check if any hit is a cover object
-                if (leftHit.collider.CompareTag("Cover"))
-                {
-                    // Try to seek cover
-                    Cover cover = leftHit.collider.GetComponent<Cover>();
-                    if (cover != null && cover.IsCoverAvailable())
-                    {
-                        currentCover = cover;
-                        return cover.TryOccupyCover(this, out coverTransform);
-                    }
-                }
-            }
-
-            if (rightRayHit)
-            {
-                // Debug.Log("Right ray hit: " + rightHit.collider.name);
-                // check if any hit is a cover object
-                if (rightHit.collider.CompareTag("Cover"))
-                {
-                    // Try to seek cover
-                    Cover cover = rightHit.collider.GetComponent<Cover>();
-                    if (cover != null && cover.IsCoverAvailable())
-                    {
-                        currentCover = cover;
-                        return cover.TryOccupyCover(this, out coverTransform);
-                    }
-                }
-            }
-
-            return false;
         }
 
         public void SeekCover(Transform coverTransform)
