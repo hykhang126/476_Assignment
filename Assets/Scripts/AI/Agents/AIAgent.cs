@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework.Interfaces;
 using UnityEngine;
@@ -53,7 +54,6 @@ namespace AI
         
         [Header("Broadcast Events")]
         public UnityEvent<AIAgent> agentDiedEvent;
-        public GenericEvent onPathGenerated;
 
         public Vector3 Velocity { get; set; }
         
@@ -165,7 +165,10 @@ namespace AI
             if (usePathFinding && pathfinder != null && target != null)
             {
                 currentPath = pathfinder.GetAstarPathFromTransforms(transform, target);
-                onPathGenerated.Invoke();
+                if (TryGetComponent<Pathfinding>(out var pathfindingComponent))
+                {
+                    pathfindingComponent.NewPathGenerated();
+                }
             }
         }
 
@@ -304,7 +307,7 @@ namespace AI
         private void ArriveCoverTarget()
         {
             // If we are close to the cover, stops and wait for squad command
-            float arriveDistance = 0.25f;
+            float arriveDistance = 0.5f;
 
             // Make sure agent is not behind the cover target. If so, return
             Vector3 toCoverTarget = currentCoverTarget.position - transform.position;
@@ -313,7 +316,7 @@ namespace AI
             {
                 return;
             }
-            else if (toCoverTarget.magnitude < 2f)
+            else if (Vector3.Distance(TargetPosition, currentCoverTarget.position) < 2f)
             {
                 TrackTarget(currentCoverTarget);
             }

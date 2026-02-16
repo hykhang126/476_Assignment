@@ -138,6 +138,9 @@ public class Flocking : AIMovement
     {
         // TODO : set the target for this agent to seek towards
         agent.flockTarget = target;
-        agent.GeneratePathToTarget();
+        if (agent.usePathFinding && agent.pathfinder != null)
+        {
+            agent.GeneratePathToTarget();
+        }
     }
 }

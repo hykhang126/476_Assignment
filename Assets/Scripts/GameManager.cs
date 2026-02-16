@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         currentCoverCount = 0;
         playerPoints = 0;
         coverCountText.text = $"Cover: {currentCoverCount}/{maxCoverCount}";
-        gameStateText.text = $"Place {maxCoverCount} covers!";
+        gameStateText.text = $"You and what army?\nPlace {maxCoverCount} covers!";
         pointsText.text = $"Points: {playerPoints}";
     }
 
@@ -145,6 +145,7 @@ public class GameManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             IncreasePlayerPoints(10);
+            gameStateText.text = $"{other.name} reached the target! +10 points!";
             if (other.TryGetComponent<AIAgent>(out var agent))
             {
                 agent.agentDiedEvent.Invoke(agent);

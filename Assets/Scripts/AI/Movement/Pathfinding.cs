@@ -12,28 +12,25 @@ namespace AI
         [SerializeField] private GridGraphNode currentTargetNode;
         [SerializeField] private int targetNodeIndex = 0;
 
-        [Header("Listen Events")]
-        public GenericEvent onPathGenerated;
-
         public void Initialize()
         {
             agent = gameObject.GetComponent<AIAgent>();
 
             targetNodeIndex = 0;
-
-            onPathGenerated.onEventRaised.AddListener(() =>
-            {
-                targetNodeIndex = 0;
-                if (agent.currentPath != null && agent.currentPath.Count > 0)
-                {
-                    currentTargetNode = agent.currentPath[targetNodeIndex];
-                }
-            });
         }
 
-        void Start()
+        void Awake()
         {
             Initialize();
+        }
+
+        public void NewPathGenerated()
+        {
+            targetNodeIndex = 0;
+            if (agent.currentPath != null && agent.currentPath.Count > 0)
+            {
+                currentTargetNode = agent.currentPath[targetNodeIndex];
+            }
         }
 
         private bool CheckifAroundDestination(Vector3 start, Vector3 end, float degreeOfArrival = 1f)

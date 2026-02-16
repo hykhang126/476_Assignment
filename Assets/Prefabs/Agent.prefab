@@ -701,7 +701,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3307eea0187a26408f4a5b295b0d742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI.AIAgent
-  maxSpeed: 4
+  maxSpeed: 2
   lockY: 1
   behaviorType: 1
   health: 100
@@ -727,7 +727,6 @@ MonoBehaviour:
   agentDiedEvent:
     m_PersistentCalls:
       m_Calls: []
-  onPathGenerated: {fileID: 11400000, guid: 84dba8934e772fe4795f7d1041eb14c4, type: 2}
 --- !u!114 &2296504425818373481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -743,7 +742,6 @@ MonoBehaviour:
   degreeOfArrival: 1.45
   currentTargetNode: {fileID: 0}
   targetNodeIndex: 0
-  onPathGenerated: {fileID: 11400000, guid: 84dba8934e772fe4795f7d1041eb14c4, type: 2}
 --- !u!114 &5212396709024917363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -761,7 +759,7 @@ MonoBehaviour:
   visualizeTarget: 1
   visualizeAvoidance: 0
   grabFromAIAgent: 1
-  visualizeCoverSphere: 1
+  visualizeCoverSphere: 0
 --- !u!114 &5453484574790828178
 MonoBehaviour:
   m_ObjectHideFlags: 0
