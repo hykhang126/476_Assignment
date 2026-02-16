@@ -7,16 +7,23 @@ using System.Collections.Specialized;
 [RequireComponent(typeof(GridGraph))]
 public class Pathfinder : MonoBehaviour
 {
+    [Header("Debug Settings")]
     public bool debug;
-    [SerializeField] private GridGraph graph;
-
-    public delegate float Heuristic(Transform start, Transform end);
-
-    public GridGraphNode startNode;
-    public GridGraphNode goalNode;
     public GameObject openPointPrefab;
     public GameObject closedPointPrefab;
     public GameObject pathPointPrefab;
+
+    [Header("Pathfinder Settings")]
+    [SerializeField] private GridGraph graph;
+    public GridGraphNode startNode;
+    public GridGraphNode goalNode;
+
+    [Header("Listen Events")]
+    public GenericEvent onGridGenerated;
+
+    public delegate float Heuristic(Transform start, Transform end);
+
+    #region Unity
 
     public void Initialize()
     {
@@ -32,12 +39,22 @@ public class Pathfinder : MonoBehaviour
         {
             goalNode = graph.nodes[^1];
         }
+        onGridGenerated.onEventRaised.RemoveListener(Initialize);
     }
 
-    void Start()
+    public void OnEnable()
     {
-        Initialize();
+        onGridGenerated.onEventRaised.AddListener(Initialize);
     }
+
+    public void OnDisable()
+    {
+        onGridGenerated.onEventRaised.RemoveListener(Initialize);
+    }
+
+    #endregion
+
+    #region Pathfind
 
     public List<GridGraphNode> GetAstarPathFromTransforms(Transform startTransform, Transform goalTransform)
     {
@@ -48,7 +65,7 @@ public class Pathfinder : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Start or goal transform does not correspond to any node in the graph.");
+            Debug.LogWarning($"{startTransform} or {goalTransform} transform does not correspond to any node in the graph.");
             return new List<GridGraphNode>();
         }
     }
@@ -117,7 +134,7 @@ public class Pathfinder : MonoBehaviour
 
         int debugIteration = 0;
 
-        while (openList.Count > 0 || debugIteration > 1000)
+        while (openList.Count > 0 && debugIteration < 1000)
         {
             // mimic priority queue and remove from the back of the open list (lowest fn value)
             GridGraphNode current = openList[openList.Count - 1];
@@ -176,7 +193,6 @@ public class Pathfinder : MonoBehaviour
             }
             debugIteration++;
         }
-        Debug.Log("Iteration: " + debugIteration);
 
         // if the closed list contains the goal node then we have found a solution
         if (!solutionFound && closedSet.Contains(goal))
@@ -237,6 +253,10 @@ public class Pathfinder : MonoBehaviour
         return path;
     }
 
+    #endregion
+
+    #region Debug
+
     private void SpawnPoints(List<Transform> points, GameObject prefab, Color color)
     {
         for (int i = 0; i < points.Count; ++i)
@@ -268,6 +288,10 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Utility
+
     /// <summary>
     /// mimics a priority queue here by inserting at the right position using a loop
     /// not a very good solution but ok for this lab example
@@ -293,4 +317,6 @@ public class Pathfinder : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

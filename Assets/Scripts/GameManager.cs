@@ -1,6 +1,6 @@
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -22,10 +22,19 @@ public class GameManager : MonoBehaviour
     public Flock flock3;
     public Flock flock4;
 
+    [Header("UI settings")]
+    public TMP_Text coverCountText;
+    public TMP_Text gameStateText;
+    public TMP_Text pointsText;
+    public int playerPoints = 0;
+
     [Header("Broadcast Events")]
     public GenericEvent onGameStart;
     public GenericEvent onFlockRelease;
-
+    public GenericEvent onFlockRelease1;
+    public GenericEvent onFlockRelease2;
+    public GenericEvent onFlockRelease3;
+    
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -47,6 +56,17 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("One or more Flock references are not assigned in the GameManager.");
         }
+
+        if (coverCountText == null || gameStateText == null || pointsText == null)
+        {
+            Debug.LogError("One or more UI Text references are not assigned in the GameManager.");
+        }
+
+        currentCoverCount = 0;
+        playerPoints = 0;
+        coverCountText.text = $"Cover: {currentCoverCount}/{maxCoverCount}";
+        gameStateText.text = $"Place {maxCoverCount} covers!";
+        pointsText.text = $"Points: {playerPoints}";
     }
 
     public void StartGame()
@@ -55,11 +75,16 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Started!");
         hasGameStarted = true;
         onGameStart.Invoke();
-        StartFlockSpawner();
+
+        StartCoroutine(ReleaseFlockCoroutine(10f));
+
+        gameStateText.text = "Game Started! Flock 1 released!";
     }
 
     public void PlaceCover()
     {
+        if (hasGameStarted) return;
+
         if (currentCoverCount >= maxCoverCount)
         {
             Debug.LogWarning("Maximum cover count reached. Cannot place more cover.");
@@ -72,11 +97,14 @@ public class GameManager : MonoBehaviour
         {
             Instantiate(coverPrefab, hit.point + Vector3.up * 1f, Quaternion.identity);
             currentCoverCount++;
+            coverCountText.text = $"Cover: {currentCoverCount}/{maxCoverCount}";
         }
     }
 
     public void RemoveCover()
     {
+        if (hasGameStarted) return;
+
         Vector3 mousePosition = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
@@ -84,39 +112,39 @@ public class GameManager : MonoBehaviour
         {
             if (hit.collider != null && hit.collider.gameObject.CompareTag("PlayerCover")) Destroy(hit.collider.gameObject);
             currentCoverCount--;
+            coverCountText.text = $"Cover: {currentCoverCount}/{maxCoverCount}";
         }
-    }
-
-    private void StartFlockSpawner()
-    {
-        StartCoroutine(ReleaseFlockCoroutine());
     }
 
     private System.Collections.IEnumerator ReleaseFlockCoroutine(float delayBetweenFlocks = 8f)
     {
-        flock1.enabled = true;
-        flock1.Initialize();
         onFlockRelease.Invoke();
 
         yield return new WaitForSeconds(delayBetweenFlocks);
-        flock2.enabled = true;
-        flock2.Initialize();
-        onFlockRelease.Invoke();
+        onFlockRelease1.Invoke();
+        gameStateText.text = "Flock 2 released!";
 
         yield return new WaitForSeconds(delayBetweenFlocks);
-        flock3.enabled = true;
-        flock3.Initialize();
-        onFlockRelease.Invoke();
+        onFlockRelease2.Invoke();
+        gameStateText.text = "Flock 3 released!";
 
         yield return new WaitForSeconds(delayBetweenFlocks);
-        flock4.enabled = true;
-        flock4.Initialize();
-        onFlockRelease.Invoke();
+        onFlockRelease3.Invoke();
+        gameStateText.text = "Flock 4 released!";
+    }
 
-        while (flock1.swarm.Count > 0 || flock2.swarm.Count > 0 || flock3.swarm.Count > 0 || flock4.swarm.Count > 0)
+    public void IncreasePlayerPoints(int amount)
+    {
+        playerPoints += amount;
+        pointsText.text = $"Points: {playerPoints}";
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
-            yield return new WaitForSeconds(delayBetweenFlocks);
-            onFlockRelease.Invoke();
+            IncreasePlayerPoints(10);
+            Destroy(other.gameObject);
         }
     }
 }

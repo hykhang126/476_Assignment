@@ -5,21 +5,22 @@ using AI;
 
 public class Flock : MonoBehaviour 
 {
-    [Header("Flock Settings")]
+    [Header("Initialization Settings")]
     public bool startOnAwake = false;
     public bool hasInitialized = false;
+
+    [Header("Flock Agent Settings")]
     public int startingFlockCount = 20;
     public GameObject flockAgentPrefab;
     public float neighborRadius = 5;
     public float avoidanceRadius = 3.5f;
     public float cohesionFactor = 1.5f;
     public float avoidanceFactor = 2f;
-    public float seekSpeed = 3f;
 
     [Header("Flock Targets")]
+    public Transform currentTarget;
     public float targetReachThreshold = 5f;
     public Transform[] targetsPreset;
-    public Transform currentTarget;
 
     public List<Flocking> swarm = new();
     public Queue<Transform> targetList = new();
@@ -29,20 +30,25 @@ public class Flock : MonoBehaviour
 
     public void OnEnable()
     {
-        onFlockReleased.onEventRaised.AddListener(SetNewSwarmTarget);
+        onFlockReleased.onEventRaised.AddListener(Initialize);
     }
 
     public void OnDisable()
     {
-        onFlockReleased.onEventRaised.RemoveListener(SetNewSwarmTarget);
+        onFlockReleased.onEventRaised.RemoveListener(Initialize);
     }
 
     public void Initialize() 
     {
+        if (hasInitialized) return;
+        else hasInitialized = true; 
         GenerateTargets();
         GenerateSwarm();
         SetNewSwarmTarget();
-        hasInitialized = true;
+        StartCoroutine(ChangeFlockTarget(8f));
+
+
+        onFlockReleased.onEventRaised.RemoveListener(Initialize);
     }
 
     private void Start()
@@ -71,21 +77,19 @@ public class Flock : MonoBehaviour
             foreach (GameObject targetObj in GameObject.FindGameObjectsWithTag("Target"))
                 targetList.Enqueue(targetObj.transform);
         }
-        
     }
 
     [ContextMenu("Set New Swarm Target")]
     public void SetNewSwarmTarget()
     {
-        if (!hasInitialized) return;
-        // Managing the Queue. We grab the target, set the swarmlings on it, then requeue it at the back.
+        if (!hasInitialized || targetList.Count <= 1) return;
         Transform target = targetList.Dequeue();
-        targetList.Enqueue(target);
         SetNewSwarmTarget(target);
     }
 
     public void SetNewSwarmTarget(Transform newTarget)
     {
+        if (!hasInitialized) return;
         currentTarget = newTarget;
         foreach (Flocking agent in swarm)
         {
@@ -150,6 +154,15 @@ public class Flock : MonoBehaviour
         {
             swarm.Remove(agentToRemove);
             Destroy(agentToRemove.gameObject);
+        }
+    }
+
+    private System.Collections.IEnumerator ChangeFlockTarget(float delayBetweenChanges = 8f)
+    {
+        while (swarm.Count > 0)
+        {
+            yield return new WaitForSeconds(delayBetweenChanges);
+            SetNewSwarmTarget();
         }
     }
 }

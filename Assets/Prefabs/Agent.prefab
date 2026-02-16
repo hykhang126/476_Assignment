@@ -617,7 +617,7 @@ GameObject:
   - component: {fileID: 328498974363990337}
   m_Layer: 6
   m_Name: Agent
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -701,12 +701,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3307eea0187a26408f4a5b295b0d742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI.AIAgent
-  maxSpeed: 3
+  maxSpeed: 4
   lockY: 1
   behaviorType: 1
   health: 100
   damageAmount: 5
-  inDangerSpeedMod: 1.5
+  inDangerSpeedMod: 2
   inDanderRayRangeMod: 5
   raylength: 2
   rayAngle: 20
@@ -719,6 +719,8 @@ MonoBehaviour:
   usePathFinding: 1
   pathfinder: {fileID: 0}
   currentState: 0
+  currentCover: {fileID: 0}
+  currentCoverTarget: {fileID: 0}
   avoidanceDirection: {x: 0, y: 0, z: 0}
   currentPath: []
   agentDiedEvent:
@@ -799,11 +801,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flocking
   debug: 0
-  flockFactor: 0.5
+  flockFactor: 1
   neighborRadius: 5
-  avoidanceRadius: 3.5
-  cohesionFactor: 2
-  avoidanceFactor: 2
+  avoidanceRadius: 5
+  cohesionFactor: 3
+  avoidanceFactor: 3
   neighborBuffer:
   - {fileID: 0}
   - {fileID: 0}
@@ -930,7 +932,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.69411767}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

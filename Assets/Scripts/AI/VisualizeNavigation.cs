@@ -39,7 +39,7 @@ namespace Utilities
             if (visualizeTarget && agent != null && agent.TargetPosition != null)
             {
                 // draw a blue ray from the agent to its current target
-                Debug.DrawRay(transform.position, agent.TargetPosition - transform.position - Vector3.up * 0.5f, Color.blue);
+                Debug.DrawRay(transform.position, agent.TargetPosition - transform.position - Vector3.up * 1f, Color.blue);
             }
             if (visualizeAvoidance && agent != null && agent.avoidanceDirection != null)
             {

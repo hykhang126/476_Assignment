@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class GridGraph : MonoBehaviour
 {
     [Header("Grid Generation Settings")]
-    public List<GridGraphNode> nodes = new List<GridGraphNode>();
+    public List<GridGraphNode> nodes = new();
     public GameObject nodePrefab;
     [Min(0)] public int generationGridColumns = 1;
     [Min(0)] public int generationGridRows = 1;
@@ -19,6 +19,9 @@ public class GridGraph : MonoBehaviour
 
     [Header("Listen Events")]
     public GenericEvent onGameStart;
+
+    [Header("Broadcast Events")]
+    public GenericEvent onGridGenerated;
 
     public void OnEnable()
     {
@@ -60,6 +63,7 @@ public class GridGraph : MonoBehaviour
     {
         Clear();
         GenerateGrid(true);
+        onGridGenerated.Invoke();
     }
 
     public void GenerateGrid(bool checkCollisions = true)
