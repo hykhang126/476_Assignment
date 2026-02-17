@@ -154,6 +154,7 @@ public class Flock : MonoBehaviour
         if (agentToRemove != null)
         {
             swarm.Remove(agentToRemove);
+            GameManager.Instance.Announce($"{agent.name} has died. {swarm.Count} remaining in the flock.");
             Destroy(agentToRemove.gameObject);
         }
     }

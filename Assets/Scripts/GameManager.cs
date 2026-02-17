@@ -152,4 +152,9 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    public void Announce(string message)
+    {
+        gameStateText.text = message;
+    }
 }

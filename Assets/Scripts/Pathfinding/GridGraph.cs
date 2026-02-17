@@ -14,6 +14,7 @@ public class GridGraph : MonoBehaviour
     [Min(0)] public int generationGridColumns = 1;
     [Min(0)] public int generationGridRows = 1;
     [Min(0)] public float generationGridCellSize = 1;
+    public LayerMask gridObstacleMask;
 
     public int Count => nodes.Count;
 
@@ -74,7 +75,7 @@ public class GridGraph : MonoBehaviour
 
         float width = (generationGridColumns > 0 ? generationGridColumns - 1 : 0) * generationGridCellSize;
         float height = (generationGridRows > 0 ? generationGridRows - 1 : 0) * generationGridCellSize;
-        Vector3 genPosition = new Vector3(transform.position.x - (width / 2), transform.position.y, transform.position.z - (height / 2));
+        Vector3 genPosition = new(transform.position.x - (width / 2), transform.position.y, transform.position.z - (height / 2));
 
         // first pass : generate nodes
         for (int r = 0; r < generationGridRows; ++r)
@@ -84,7 +85,7 @@ public class GridGraph : MonoBehaviour
             {
                 if (checkCollisions)
                 {
-                    if (Physics.CheckBox(genPosition, Vector3.one / 2, Quaternion.identity, LayerMask.GetMask("Cover")))
+                    if (Physics.CheckBox(genPosition, Vector3.one / 2, Quaternion.identity, gridObstacleMask))
                     {
                         genPosition = new Vector3(genPosition.x + generationGridCellSize, genPosition.y, genPosition.z);
                         continue;
