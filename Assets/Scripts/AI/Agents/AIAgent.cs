@@ -289,6 +289,7 @@ namespace AI
             health -= damage;
             if (health <= 0f)
             {
+                GameManager.Instance.Announce($"{this.name} has made a blunder.");
                 if (currentCover != null)
                 {
                     currentCover.RemoveCoverOccupant(this);

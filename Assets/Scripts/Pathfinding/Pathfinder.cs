@@ -289,6 +289,7 @@ public class Pathfinder : MonoBehaviour
     [ContextMenu("Clear Debug Points")]
     public void ClearPoints()
     {
+#if UNITY_EDITOR
         foreach (GridGraphNode node in graph.nodes)
         {
 			node._nodeGizmoColor = new Color(Color.white.r, Color.white.g, Color.white.b, 0.5f);
@@ -300,6 +301,7 @@ public class Pathfinder : MonoBehaviour
                 }
             }
         }
+#endif
     }
 
     #endregion
